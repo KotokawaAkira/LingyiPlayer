@@ -5,6 +5,7 @@
       :src="`https://kotokawa-akira-mywife.site/netDisk/downLoadForMusic?path=music/${musicName}.mp3`"
       controls
     />
+    <button @click="openSelector">选择文件夹</button>
     <Lyrics :lyrics :player />
   </div>
 </template>
@@ -13,9 +14,13 @@ import Lyrics from "./components/Lyrics.vue";
 import { findLyric } from "./request/LyricRequest";
 import { ref } from "vue";
 import Lyric from "./type/Lyric";
+
+import { dialog } from "@electron/remote";
+import { ipcRenderer } from "electron";
+
 const lyrics = ref<Lyric[]>();
 const player = ref<HTMLAudioElement>();
-const musicName = ref<string>("高橋李依 - 小さな恋のうた")
+const musicName = ref<string>("高橋李依 - 粉雪");
 
 executeLyrics().then((res) => {
   lyrics.value = res;
@@ -35,12 +40,10 @@ async function executeLyrics() {
       if (wordsSplit[1]) line.translation = wordsSplit[1];
     }
 
-
     //處理時間
     const temp = splits[0].split("[");
     const timeSplit = temp[1].split(":");
-    if(isNaN(Number(timeSplit[0])))
-      return line; //處理開頭標籤
+    if (isNaN(Number(timeSplit[0]))) return line; //處理開頭標籤
     const minutes = Number(timeSplit[0]);
     const time = minutes * 60 + Number(timeSplit[1]);
     line.time = Number(time.toFixed(2));
@@ -50,6 +53,23 @@ async function executeLyrics() {
 
   return executedLyric;
 }
+function openSelector() {
+  // console.log(dialog);
+  
+  dialog
+    .showOpenDialog({
+      title: "选择文件夹",
+      properties: ["openFile"],
+    })
+    .then((res) => {
+      console.log(res.filePaths);
+      ipcRenderer.send("doLoadLyric",res.filePaths[0]);
+    });
+  
+}
+ipcRenderer.on("loadLyric",(_event,args:string)=>{
+  console.log(args);
+})
 </script>
 
 <style scoped>

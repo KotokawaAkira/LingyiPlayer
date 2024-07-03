@@ -24,6 +24,7 @@
       <div class="lyrics-placeholder"></div>
     </div>
     <button
+      v-if="props.lyrics?.some((item) => item.translation)"
       @click="changeShowTranslate"
       :class="`lyric-container-translate ${
         showTranslation === true ? 'lyric-container-translate-active' : null
@@ -41,7 +42,6 @@ const props = defineProps<{ lyrics?: Lyric[]; player?: HTMLAudioElement }>();
 const index = ref<number>(0);
 let lyricsDom: NodeListOf<HTMLDivElement>;
 let lyricContainerDom: HTMLDivElement | null;
-const zeroHeightDomCount = ref(0);
 const showTranslation = ref(true);
 let unLocked = true;
 
@@ -55,7 +55,7 @@ function setPlayer() {
     props.player.ontimeupdate = () => {
       if (props.lyrics && props.lyrics[index.value]) {
         if (props.lyrics[index.value].time === undefined) index.value += 1;
-        if (props.player!.currentTime > props.lyrics[index.value].time!) {
+        if (props.player!.currentTime > props.lyrics[index.value].time! - 0.2) {
           index.value += 1;
         }
       }
@@ -72,12 +72,11 @@ function onLyricClicked(i: number) {
   unLocked = true;
 }
 function getLyricDom() {
+  //初始化idnex
+  index.value = 0;
   //获取歌词区域的dom
   nextTick(() => {
     lyricsDom = document.querySelectorAll(".lyrics");
-    lyricsDom.forEach((item) => {
-      if (item.clientHeight === 0) zeroHeightDomCount.value += 1;
-    });
     lyricContainerDom = document.querySelector(".lyric-container");
     //设置滚动锁定
     lyricContainerDom!.onmouseenter = () => (unLocked = false);
@@ -103,7 +102,7 @@ function lyricScroll(i: number) {
       );
   }
 }
-function changeShowTranslate(){
+function changeShowTranslate() {
   showTranslation.value = !showTranslation.value;
 }
 </script>
@@ -111,7 +110,7 @@ function changeShowTranslate(){
 .lyric-container {
   position: relative;
   height: 600px;
-  width: 400px;
+  // width: 400px;
   overflow: scroll;
   scroll-behavior: smooth;
   &::-webkit-scrollbar {
@@ -123,12 +122,19 @@ function changeShowTranslate(){
     transition: all 0.3s ease;
     cursor: pointer;
     transform-origin: 0 50%;
+    transform: scale(0.85);
+    font-size: 1.5rem;
+    padding: 0 6px;
+    border-radius: 6px;
+    &:hover {
+      background-color: rgba(220, 220, 220, 0.8);
+    }
     &-active {
       color: #e3b4f4;
-      transform: scale(1.2);
+      transform: scale(1);
     }
     &-translation {
-      font-size: 12px;
+      font-size: 1rem;
     }
     &-placeholder {
       height: 72%;
