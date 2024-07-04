@@ -1,15 +1,18 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { loadLyric } from "../src/request/LyricRequest";
 //引入remoteMain
 import remoteMain from "@electron/remote/main";
+
+import { loadMusic } from "../src/request/MusicRequest";
+import { loadLyric } from "../src/request/LyricRequest";
+
 //初始化remoteMain
 remoteMain.initialize();
 //创建窗口
 let window: BrowserWindow;
 const createWindows = () => {
   const window = new BrowserWindow({
-    width: 1000,
+    width: 1400,
     height: 800,
     webPreferences: {
       contextIsolation: false, //是否隔离上下文
@@ -45,5 +48,11 @@ app.on("window-all-closed", () => {
 //加载歌词
 ipcMain.on("doLoadLyric", async (_event, args: string) => {
   const res = await loadLyric(args);
-  window.webContents.send("loadLyric",res);
+  window.webContents.send("loadLyric", res);
+});
+//加载音乐
+ipcMain.on("doLoadMusic", async (_event, args: string) => {
+  const res = await loadMusic(args);
+  //传递两个数据，第一个为music buffer，第二个为原始路径
+  window.webContents.send("loadMusic", { buffer: res, originPath: args });
 });

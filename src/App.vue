@@ -1,47 +1,104 @@
 <template>
-  <div>
-    <audio
-      ref="player"
-      :src="`https://kotokawa-akira-mywife.site/netDisk/downLoadForMusic?path=music/${musicName}.mp3`"
-      controls
-    />
-    <button @click="openSelector">选择文件夹</button>
-    <Lyrics :lyrics :player />
-  </div>
+  <main>
+    <div class="meta-container">
+      <div class="meta-container-main">
+        <img
+          v-if="musicMeta && musicMeta.common.picture"
+          :src="`data:${
+            musicMeta.common.picture[0].format
+          };base64,${musicMeta.common.picture[0].data.toString('base64')}`"
+        />
+      </div>
+      <div class="meta-container-title">
+        <span v-if="musicMeta">
+          {{ musicMeta.common.artist }} - {{ musicMeta.common.title }}
+        </span>
+        <span v-else>
+          {{ musicFileName }}
+        </span>
+      </div>
+    </div>
+    <div>
+      <div class="terminal">
+        <audio ref="player" controls :src="musicSrcURL" />
+      </div>
+      <Lyrics :lyrics :player />
+    </div>
+    <div class="music-list">
+      <button @click="openSelector">选择</button>
+      <ul class="music-list-container">
+        <li
+          :class="`music-list-container-item ${
+            musicFileName === item.name
+              ? 'music-list-container-item-active'
+              : null
+          }`"
+          v-for="item in musicList"
+          @click="onMusicListClicked(item)"
+        >
+          {{ item.name }}
+        </li>
+      </ul>
+    </div>
+  </main>
 </template>
 <script setup lang="ts">
 import Lyrics from "./components/Lyrics.vue";
-import { findLyric } from "./request/LyricRequest";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import Lyric from "./type/Lyric";
 
 import { dialog } from "@electron/remote";
 import { ipcRenderer } from "electron";
+import { MusicBuffer, MusicFileInfo } from "./type/Music";
+import { getFilesAndFoldersInDir, parseMeta } from "./request/MusicRequest";
+import { IAudioMetadata } from "../node_modules/music-metadata/lib/type";
 
 const lyrics = ref<Lyric[]>();
 const player = ref<HTMLAudioElement>();
-const musicName = ref<string>("高橋李依 - 粉雪");
+const musicFileName = ref<string>("");
+const musicSrcURL = ref<string | undefined>();
+const musicList = ref<MusicFileInfo[]>();
+const musicMeta = ref<IAudioMetadata>();
 
-executeLyrics().then((res) => {
-  lyrics.value = res;
+//监听音乐列表的变化
+watch(musicList, (val) => {
+  if (!val) return;
+  ipcRenderer.send("doLoadMusic", val[0].originPath);
+  musicFileName.value = val[0].name;
 });
 
-async function executeLyrics() {
-  const lyricBody = await findLyric(musicName.value);
+//监听主进程加载音乐
+ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
+  musicSrcURL.value = URL.createObjectURL(new Blob([args.buffer]));
+  getLyric(args.originPath);
+  const meta = await parseMeta(args.buffer);
+  musicMeta.value = meta;
+  console.log(meta);
+});
+////监听主进程加载歌词
+ipcRenderer.on("loadLyric", (_event, args: string) => {
+  lyrics.value = executeLyrics(args);
+});
+
+//处理歌词
+function executeLyrics(lyricBody: string) {
+  if (!lyricBody) return [];
   const lines = lyricBody.trim().split("\n");
   const executedLyric = lines.map((item) => {
     const line: Lyric = { words: "" };
     const splits = item.split("]");
 
     //分割翻譯歌詞
-    if (splits[1].trim().length > 0) {
-      const wordsSplit = splits[1].split(";");
+    if (splits[1] && splits[1].trim().length > 0) {
+      const wordsSplit = splits[1].split("/");
       line.words = wordsSplit[0];
       if (wordsSplit[1]) line.translation = wordsSplit[1];
     }
 
     //處理時間
     const temp = splits[0].split("[");
+    if (!temp[1]) return line;
+
     const timeSplit = temp[1].split(":");
     if (isNaN(Number(timeSplit[0]))) return line; //處理開頭標籤
     const minutes = Number(timeSplit[0]);
@@ -53,36 +110,87 @@ async function executeLyrics() {
 
   return executedLyric;
 }
+//打开文件夹
 function openSelector() {
-  // console.log(dialog);
-  
   dialog
     .showOpenDialog({
-      title: "选择文件夹",
-      properties: ["openFile"],
+      title: "选择文件",
+      // filters: [{ name: "Music", extensions: ["mp3", "wav", "flac"] }],
+      properties: ["openDirectory"],
     })
     .then((res) => {
-      console.log(res.filePaths);
-      ipcRenderer.send("doLoadLyric",res.filePaths[0]);
+      const result = getFilesAndFoldersInDir(res.filePaths[0], []);
+      musicList.value = result;
     });
-  
 }
-ipcRenderer.on("loadLyric",(_event,args:string)=>{
-  console.log(args);
-})
+
+//根据musicPath获取同目录下的lyricPath
+function getLyric(musicPath: string) {
+  const lastPoint = musicPath.lastIndexOf("\.");
+  const lyrciPath = musicPath.slice(0, lastPoint + 1) + "lrc";
+  ipcRenderer.send("doLoadLyric", lyrciPath);
+}
+//点击音乐列表项目
+function onMusicListClicked(item: MusicFileInfo) {
+  musicFileName.value = item.name;
+  ipcRenderer.send("doLoadMusic", item.originPath);
+  player.value!.oncanplay = () => player.value?.play();
+}
 </script>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<style lang="scss" scoped>
+main {
+  display: flex;
+  gap: 5%;
+  align-items: center;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.meta-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+  &-main {
+    aspect-ratio: 1;
+    width: 30vw;
+    max-width: 500px;
+    min-width: 200px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  &-title {
+    text-align: center;
+    font-size: 1.5rem;
+  }
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.terminal {
+  display: flex;
+  flex-direction: row;
+}
+.music-list {
+  position: absolute;
+  right: 3vw;
+  top: 45vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  &-container {
+    &-item {
+      list-style-type: none;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+      user-select: none;
+      cursor: pointer;
+      transform: scale(0.95);
+      transform-origin: 0 0;
+      &:hover {
+        transform: scale(1);
+      }
+      &-active {
+        color: #9ac8e2;
+        transform: scale(1);
+      }
+    }
+  }
 }
 </style>

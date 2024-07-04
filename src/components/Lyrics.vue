@@ -4,7 +4,7 @@
       <div v-if="!props.lyrics">沒有歌詞</div>
       <div
         v-else
-        :class="`lyrics ${index === i + 1 ? 'lyrics-active' : null}`"
+        :class="`lyrics ${index === i ? 'lyrics-active' : null}`"
         v-for="lyric,i in props.lyrics!"
         :data-time="lyric.time"
         @click="onLyricClicked(i)"
@@ -54,16 +54,18 @@ function setPlayer() {
     props.player.volume = 0.3;
     props.player.ontimeupdate = () => {
       if (props.lyrics && props.lyrics[index.value]) {
-        if (props.lyrics[index.value].time === undefined) index.value += 1;
-        if (props.player!.currentTime > props.lyrics[index.value].time! - 0.2) {
-          index.value += 1;
-        }
+        props.lyrics.forEach((item, i) => {
+          if (item.time === undefined) index.value = i;
+          if (props.player!.currentTime > item.time! - 0.2) {
+            index.value = i;
+          }
+        });
       }
     };
   }
 }
 function onLyricClicked(i: number) {
-  index.value = i + 1;
+  index.value = i;
   if (props.player && props.lyrics) {
     props.player.currentTime = props.lyrics[i].time!;
     props.player.play();
@@ -74,6 +76,7 @@ function onLyricClicked(i: number) {
 function getLyricDom() {
   //初始化idnex
   index.value = 0;
+
   //获取歌词区域的dom
   nextTick(() => {
     lyricsDom = document.querySelectorAll(".lyrics");
@@ -84,6 +87,8 @@ function getLyricDom() {
       unLocked = true;
       lyricScroll(index.value);
     };
+    //初始化滚动(回到顶部)
+    lyricContainerDom!.scrollTo(0, 0);
   });
 }
 function indexChange(val: number) {
@@ -92,14 +97,12 @@ function indexChange(val: number) {
 function lyricScroll(i: number) {
   //滚动歌词
   if (props.lyrics && props.lyrics[index.value] && lyricContainerDom) {
-    if (
-      lyricsDom[i].offsetTop > lyricContainerDom.clientHeight / 3.2 &&
-      unLocked
-    )
+    if (lyricsDom[i].offsetTop > lyricContainerDom.clientHeight / 4.3 && unLocked)
       lyricContainerDom.scrollTo(
         0,
-        lyricsDom[i].offsetTop - lyricContainerDom.clientHeight / 3.2
+        lyricsDom[i].offsetTop - lyricContainerDom.clientHeight / 4.3
       );
+    else if(unLocked) lyricContainerDom.scrollTo(0, 0);
   }
 }
 function changeShowTranslate() {

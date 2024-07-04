@@ -11,7 +11,7 @@ async function findLyric(musicName: string) {
 async function loadLyric(path: string) {
   return new Promise<string>((resolve, reject) => {
     fs.readFile(path, (err, data) => {
-      if (err) reject(err);
+      if (err) reject(undefined);
       else resolve(data.toString());
     });
   });
