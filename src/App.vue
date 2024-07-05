@@ -1,44 +1,54 @@
 <template>
   <main>
-    <div class="meta-container">
-      <div class="meta-container-main">
-        <img
-          v-if="musicMeta && musicMeta.common.picture"
-          :src="`data:${
-            musicMeta.common.picture[0].format
-          };base64,${musicMeta.common.picture[0].data.toString('base64')}`"
-        />
+    <div class="info-section">
+      <div class="meta-container">
+        <div class="meta-container-main">
+          <img
+            ref="pictrue"
+            v-if="musicMeta && musicMeta.common.picture"
+            :src="`data:${
+              musicMeta.common.picture[0].format
+            };base64,${musicMeta.common.picture[0].data.toString('base64')}`"
+          />
+        </div>
+        <div class="meta-container-title">
+          <span v-if="musicMeta">
+            {{ musicMeta.common.artist }} - {{ musicMeta.common.title }}
+          </span>
+          <span v-else>
+            {{ musicFileName }}
+          </span>
+        </div>
       </div>
-      <div class="meta-container-title">
-        <span v-if="musicMeta">
-          {{ musicMeta.common.artist }} - {{ musicMeta.common.title }}
-        </span>
-        <span v-else>
-          {{ musicFileName }}
-        </span>
+      <div class="lyrics-main">
+        <div class="terminal">
+          <audio v-show="false" ref="player" controls :src="musicSrcURL" />
+        </div>
+        <Lyrics :lyrics :player />
+      </div>
+      <div class="music-list">
+        <button @click="openSelector">选择</button>
+        <ul class="music-list-container">
+          <li
+            :class="`music-list-container-item ${
+              now === index ? 'music-list-container-item-active' : null
+            }`"
+            v-for="(item, index) in musicList"
+            @click="changeMusic(item, index)"
+          >
+            {{ item.name }}
+          </li>
+        </ul>
       </div>
     </div>
     <div>
-      <div class="terminal">
-        <audio ref="player" controls :src="musicSrcURL" />
-      </div>
-      <Lyrics :lyrics :player />
-    </div>
-    <div class="music-list">
-      <button @click="openSelector">选择</button>
-      <ul class="music-list-container">
-        <li
-          :class="`music-list-container-item ${
-            musicFileName === item.name
-              ? 'music-list-container-item-active'
-              : null
-          }`"
-          v-for="item in musicList"
-          @click="onMusicListClicked(item)"
-        >
-          {{ item.name }}
-        </li>
-      </ul>
+      <MusicController
+        :player
+        :totle="musicDuration"
+        :musicList
+        :changeMusic
+        :now
+      />
     </div>
   </main>
 </template>
@@ -52,6 +62,9 @@ import { ipcRenderer } from "electron";
 import { MusicBuffer, MusicFileInfo } from "./type/Music";
 import { getFilesAndFoldersInDir, parseMeta } from "./request/MusicRequest";
 import { IAudioMetadata } from "../node_modules/music-metadata/lib/type";
+import MusicController from "./components/MusicController.vue";
+import colorfulImg from "./tools/ThemeColor";
+import { nextTick } from "process";
 
 const lyrics = ref<Lyric[]>();
 const player = ref<HTMLAudioElement>();
@@ -59,10 +72,13 @@ const musicFileName = ref<string>("");
 const musicSrcURL = ref<string | undefined>();
 const musicList = ref<MusicFileInfo[]>();
 const musicMeta = ref<IAudioMetadata>();
+const pictrue = ref<HTMLImageElement>();
+const musicDuration = ref(0);
+const now = ref(0);
 
 //监听音乐列表的变化
 watch(musicList, (val) => {
-  if (!val) return;
+  if (!val || val.length === 0) return;
   ipcRenderer.send("doLoadMusic", val[0].originPath);
   musicFileName.value = val[0].name;
 });
@@ -73,7 +89,18 @@ ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
   getLyric(args.originPath);
   const meta = await parseMeta(args.buffer);
   musicMeta.value = meta;
+  if (meta.format.duration) musicDuration.value = meta.format.duration;
   console.log(meta);
+  //设置背景主题色
+  nextTick(() => {
+    if (pictrue.value) {
+      const rgb = colorfulImg(pictrue.value);
+      document.body.style.setProperty(
+        "--bg",
+        `rgb(${rgb.r},${rgb.g},${rgb.b})`
+      );
+    }
+  });
 });
 ////监听主进程加载歌词
 ipcRenderer.on("loadLyric", (_event, args: string) => {
@@ -130,8 +157,9 @@ function getLyric(musicPath: string) {
   const lyrciPath = musicPath.slice(0, lastPoint + 1) + "lrc";
   ipcRenderer.send("doLoadLyric", lyrciPath);
 }
-//点击音乐列表项目
-function onMusicListClicked(item: MusicFileInfo) {
+//更改音乐
+function changeMusic(item: MusicFileInfo, index: number) {
+  now.value = index;
   musicFileName.value = item.name;
   ipcRenderer.send("doLoadMusic", item.originPath);
   player.value!.oncanplay = () => player.value?.play();
@@ -140,9 +168,20 @@ function onMusicListClicked(item: MusicFileInfo) {
 
 <style lang="scss" scoped>
 main {
+  width: 100%;
+  height: 100%;
   display: flex;
-  gap: 5%;
+  gap: 2%;
+  justify-content: space-around;
   align-items: center;
+  flex-direction: column;
+  .info-section {
+    display: flex;
+    gap: 5%;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+  }
 }
 .meta-container {
   display: flex;
@@ -152,7 +191,7 @@ main {
     aspect-ratio: 1;
     width: 30vw;
     max-width: 500px;
-    min-width: 200px;
+    min-width: 400px;
     img {
       width: 100%;
       height: 100%;
@@ -163,10 +202,14 @@ main {
     font-size: 1.5rem;
   }
 }
-.terminal {
-  display: flex;
-  flex-direction: row;
+.lyrics-main {
+  width: 50%;
+  .terminal {
+    display: flex;
+    flex-direction: row;
+  }
 }
+
 .music-list {
   position: absolute;
   right: 3vw;
