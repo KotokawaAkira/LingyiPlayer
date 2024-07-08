@@ -1,9 +1,9 @@
 <template>
   <div class="lyrics-body">
     <div class="lyric-container">
-      <div v-if="!props.lyrics" class="no-lyrics">沒有歌詞</div>
+      <div v-if="props.lyrics" class="lyrics-placeholder-top"></div>
       <div
-        v-else
+        v-if="props.lyrics"
         :class="`lyrics ${index === i ? 'lyrics-active' : null}`"
         v-for="lyric,i in props.lyrics!"
         :data-time="lyric.time"
@@ -21,7 +21,8 @@
           {{ lyric.translation }}
         </div>
       </div>
-      <div v-if="props.lyrics" class="lyrics-placeholder"></div>
+      <div v-if="props.lyrics" class="lyrics-placeholder-btm"></div>
+      <div v-else class="no-lyrics">没有歌词 / No lyrics</div>
     </div>
     <button
       v-if="props.lyrics?.some((item) => item.translation)"
@@ -51,7 +52,6 @@ watch(index, indexChange);
 
 function setPlayer() {
   if (props.player) {
-    props.player.volume = 0.3;
     props.player.ontimeupdate = () => {
       if (props.lyrics && props.lyrics[index.value]) {
         props.lyrics.forEach((item, i) => {
@@ -101,11 +101,13 @@ function lyricScroll(i: number) {
       lyricsDom[i].offsetTop > lyricContainerDom.clientHeight / 4.3 &&
       unLocked
     )
-      lyricContainerDom.scrollTo(
-        0,
-        lyricsDom[i].offsetTop - lyricContainerDom.clientHeight / 4.3
-      );
-    else if (unLocked) lyricContainerDom.scrollTo(0, 0);
+      lyricContainerDom.scrollTo({
+        left: 0,
+        top: lyricsDom[i].offsetTop - lyricContainerDom.clientHeight / 4.3,
+        behavior: "smooth",
+      });
+    else if (unLocked)
+      lyricContainerDom.scrollTo({ left: 0, top: 0, behavior: "smooth" });
   }
 }
 function changeShowTranslate() {
@@ -121,7 +123,15 @@ function changeShowTranslate() {
     height: 70vh;
     width: 100%;
     overflow: scroll;
-    scroll-behavior: smooth;
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      hsla(0, 0%, 100%, 0),
+      hsla(0, 0%, 100%, 0.6) 15%,
+      #fff 25%,
+      #fff 75%,
+      hsla(0, 0%, 100%, 0.6) 85%,
+      hsla(0, 0%, 100%, 0)
+    );
     &::-webkit-scrollbar {
       display: none;
     }
@@ -153,15 +163,20 @@ function changeShowTranslate() {
         font-size: 1rem;
       }
       &-placeholder {
-        height: 72%;
         width: 100%;
+        &-top {
+          height: 15%;
+        }
+        &-btm {
+          height: 72%;
+        }
       }
     }
     &-translate {
       margin-top: 1rem;
       height: 3rem;
       &-active {
-        color: var(--lyrics_color_active);
+        color: var(--color_tjx);
       }
     }
   }

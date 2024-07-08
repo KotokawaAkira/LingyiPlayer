@@ -13,11 +13,15 @@
   -moz-osx-font-smoothing: grayscale;
 
   font-size: 12px;
-  --bg:rgb(#e3e3e3);
-
-  --lyrics_color:#fff;
-  --lyrics_color_active:#242424;
-  --color_tjx:#e3b4bf;
+  --bg: #7c7c7c;
+  --bg_control:#242424;
+  --font_color: #e3e3e3;
+  --lyrics_color: #242424;
+  --lyrics_color_active: #fff;
+  --color_tjx: #e3b4bf;
+  --bg_progress: #242424;
+  --bg_progress_active: #d4d4d4;
+  --side_window_bg:#42424260;
 }
 
 a {
@@ -36,8 +40,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--bg);
+  transition: background-color .5s ease;
 }
-img{
+img {
   display: block;
   -webkit-user-drag: none;
 }
@@ -45,7 +50,10 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-
+ul,li{
+  margin: 0;
+  padding: 0;
+}
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -71,16 +79,23 @@ button:focus-visible {
 
 #app {
   margin: 0 auto;
-  padding: .5rem;
   width: 100%;
   height: 100vh;
   box-sizing: border-box;
+  color: var(--font_color);
 }
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     --bg: #e3e3e3;
+    --bg_control:#fff;
+    --font_color: rgb(#0b0b0b);
+    --bg_progress: #e0e0e0a2;
+    --bg_progress_active: #0b0b0be8;
+    --lyrics_color: #fff;
+    --lyrics_color_active: #242424;
+    --side_window_bg:#e3e3e360;
   }
   a:hover {
     color: #747bff;

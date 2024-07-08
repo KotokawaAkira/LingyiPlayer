@@ -12,7 +12,7 @@
           />
         </div>
         <div class="meta-container-title">
-          <span v-if="musicMeta">
+          <span v-if="musicMeta?.common.artist && musicMeta?.common.title">
             {{ musicMeta.common.artist }} - {{ musicMeta.common.title }}
           </span>
           <span v-else>
@@ -26,22 +26,46 @@
         </div>
         <Lyrics :lyrics :player />
       </div>
-      <div class="music-list">
-        <button @click="openSelector">选择</button>
-        <ul class="music-list-container">
-          <li
-            :class="`music-list-container-item ${
-              now === index ? 'music-list-container-item-active' : null
+      <div
+        :class="`side-window ${showSideWindow ? 'side-window-active' : 'null'}`"
+      >
+        <div class="show-button" @click="showSideWindow = !showSideWindow">
+          <svg
+            :class="`show-button-icon ${
+              showSideWindow ? 'show-button-icon-active' : 'null'
             }`"
-            v-for="(item, index) in musicList"
-            @click="changeMusic(item, index)"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0 0 292.359 292.359"
+            style="enable-background: new 0 0 292.359 292.359"
+            xml:space="preserve"
           >
-            {{ item.name }}
-          </li>
-        </ul>
+            <path
+              d="M222.979,5.424C219.364,1.807,215.08,0,210.132,0c-4.949,0-9.233,1.807-12.848,5.424L69.378,133.331
+		c-3.615,3.617-5.424,7.898-5.424,12.847c0,4.949,1.809,9.233,5.424,12.847l127.906,127.907c3.614,3.617,7.898,5.428,12.848,5.428
+		c4.948,0,9.232-1.811,12.847-5.428c3.617-3.614,5.427-7.898,5.427-12.847V18.271C228.405,13.322,226.596,9.042,222.979,5.424z"
+            />
+          </svg>
+        </div>
+        <div class="music-list">
+          <button @click="openSelector">选择</button>
+          <ul class="music-list-container">
+            <li
+              :class="`music-list-container-item ${
+                now === index ? 'music-list-container-item-active' : null
+              }`"
+              :title="item.name"
+              v-for="(item, index) in musicList"
+              @click="changeMusic(item, index)"
+            >
+              {{ item.name }}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div>
+    <div class="controller-container">
       <MusicController
         :player
         :totle="musicDuration"
@@ -75,6 +99,7 @@ const musicMeta = ref<IAudioMetadata>();
 const pictrue = ref<HTMLImageElement>();
 const musicDuration = ref(0);
 const now = ref(0);
+const showSideWindow = ref(false);
 
 //监听音乐列表的变化
 watch(musicList, (val) => {
@@ -172,7 +197,7 @@ main {
   height: 100%;
   display: flex;
   gap: 2%;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   flex-direction: column;
   .info-section {
@@ -181,6 +206,7 @@ main {
     align-items: center;
     justify-content: center;
     width: 80%;
+    height: 85%;
   }
 }
 .meta-container {
@@ -210,30 +236,84 @@ main {
   }
 }
 
-.music-list {
-  position: absolute;
-  right: 3vw;
-  top: 45vh;
+.side-window {
+  position: fixed;
+  top: 25vh;
+  right: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  &-container {
-    &-item {
-      list-style-type: none;
-      transition: all 0.3s ease;
-      font-size: 1.2rem;
-      user-select: none;
-      cursor: pointer;
-      transform: scale(0.95);
-      transform-origin: 0 0;
-      &:hover {
-        transform: scale(1);
-      }
+  transition: all 0.5s ease;
+  transform: translate(calc(100% - 2rem));
+  &-active {
+    transform: translate(0%);
+  }
+  .show-button {
+    height: 2rem;
+    width: 2rem;
+    cursor: pointer;
+    &-icon {
+      height: 100%;
+      width: 100%;
+      fill: var(--font_color);
+      transition: all 0.5 ease;
       &-active {
-        color: #9ac8e2;
-        transform: scale(1);
+        transform: rotate(180deg);
       }
     }
   }
+  .music-list {
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    background-color: var(--side_window_bg);
+    max-width: 22rem;
+    overflow: hidden;
+    &-container {
+      max-height: 40vh;
+      overflow: auto;
+
+      &::-webkit-scrollbar {
+        width: 0.5rem;
+      }
+      &::-webkit-scrollbar-track {
+        background-color: var(--bg_progress);
+        opacity: 0.6;
+        border-radius: 0.25rem;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: var(--bg_progress_active);
+        border-radius: 0.25rem;
+      }
+      &-item {
+        list-style-type: none;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+        user-select: none;
+        cursor: pointer;
+        transform-origin: 0 0;
+        box-sizing: border-box;
+        padding: 0.3rem 0;
+        white-space: nowrap;
+        &:hover {
+          color: var(--lyrics_color);
+        }
+        &-active {
+          color: var(--lyrics_color);
+        }
+      }
+    }
+  }
+}
+
+.controller-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  box-sizing: border-box;
 }
 </style>

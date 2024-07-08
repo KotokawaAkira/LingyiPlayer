@@ -16,7 +16,6 @@
           class="progress-out"
           @mousedown="progressMouseDown"
           @mouseup="progressMouseUp"
-          @mouseleave="progressMouseLeave"
           @click="progressClick"
         >
           <div ref="progress" class="progress-in"></div>
@@ -25,14 +24,84 @@
     </div>
     <div class="controls">
       <div class="play-controls">
-        <div class="play-controls-button" @click="preMusic(props.now)">上</div>
-        <div class="play-controls-button" @click="playClick">
-          {{ `${isPlaying ? "停" : "播"}` }}
+        <div class="play-controls-button" @click="preMusic(props.now)">
+          <svg
+            class="play-controls-icon"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12,0A12,12,0,1,0,24,12,12.01,12.01,0,0,0,12,0Zm2.64,16.232a1,1,0,1,1-1.28,1.536l-6-5a1,1,0,0,1,0-1.536l6-5a1,1,0,1,1,1.28,1.536L9.562,12Z"
+            />
+          </svg>
         </div>
-        <div class="play-controls-button" @click="nextMusic(props.now)">下</div>
+        <div class="play-controls-button" @click="playClick">
+          <svg
+            :class="['play-pause', 'play-controls-icon']"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0 0 16 16"
+            xml:space="preserve"
+          >
+            <path
+              v-if="isPlaying"
+              d="M8,0C3.582,0,0,3.582,0,8s3.582,8,8,8s8-3.582,8-8S12.418,0,8,0z M7,12H5V8V4h2V12z M11,12H9V8V4h2
+		V12z"
+            />
+            <path
+              v-else
+              d="M8,0C3.582,0,0,3.582,0,8s3.582,8,8,8s8-3.582,8-8S12.418,0,8,0z M5,12V4l7,4L5,12z"
+            />
+          </svg>
+        </div>
+        <div class="play-controls-button" @click="nextMusic(props.now)">
+          <svg
+            class="play-controls-icon"
+            viewBox="0 0 24 24"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+          >
+            <path
+              d="M12,0A12,12,0,1,0,24,12,12.01,12.01,0,0,0,12,0Zm4.641,12.768-6,5a1,1,0,1,1-1.282-1.536L14.437,12,9.359,7.768a1,1,0,1,1,1.282-1.536l6,5a1,1,0,0,1,0,1.536Z"
+            />
+          </svg>
+        </div>
       </div>
       <div class="controls-volume">
-        <div class="volume-icon" @click="mute">音量</div>
+        <div style="height: 2rem" @click="mute">
+          <svg
+            class="play-controls-icon"
+            v-if="volume === 0 || volume < 0"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19.45,4.11a1,1,0,0,0-1,.09L10.67,10H3a1,1,0,0,0-1,1V21a1,1,0,0,0,1,1h7.67l7.73,5.8A1,1,0,0,0,20,27V5A1,1,0,0,0,19.45,4.11Z"
+            />
+            <path
+              d="M27.41,16l2.29-2.29a1,1,0,0,0-1.41-1.41L26,14.59l-2.29-2.29a1,1,0,0,0-1.41,1.41L24.59,16l-2.29,2.29a1,1,0,1,0,1.41,1.41L26,17.41l2.29,2.29a1,1,0,0,0,1.41-1.41Z"
+            />
+          </svg>
+          <svg
+            v-else
+            class="play-controls-icon"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19.45,4.11a1,1,0,0,0-1,.09L10.67,10H3a1,1,0,0,0-1,1V21a1,1,0,0,0,1,1h7.67l7.73,5.8A1,1,0,0,0,20,27V5A1,1,0,0,0,19.45,4.11Z"
+            />
+            <path
+              d="M23,12a1,1,0,0,0-1,1v6a1,1,0,0,0,2,0V13A1,1,0,0,0,23,12Z"
+            />
+            <path
+              d="M26,10a1,1,0,0,0-1,1V21a1,1,0,0,0,2,0V11A1,1,0,0,0,26,10Z"
+            />
+            <path d="M29,8a1,1,0,0,0-1,1V23a1,1,0,0,0,2,0V9A1,1,0,0,0,29,8Z" />
+          </svg>
+        </div>
         <div
           ref="volume_progress_out"
           class="volume-progress"
@@ -64,6 +133,7 @@ const volume_progress_out = ref<HTMLDivElement>();
 const volume_progress = ref<HTMLDivElement>();
 const musicCurrentTime = ref<string>("0:00");
 const isPlaying = ref(false);
+const volume = ref(0);
 
 let lastTime = 0;
 
@@ -73,6 +143,9 @@ watch(
     if (!val) return;
     val.addEventListener("timeupdate", timeUpdate);
     val.onended = () => nextMusic(props.now);
+    val.onvolumechange = volumeChange;
+    const volume_num = getVolume();
+    val.volume = volume_num;
     volumeChange();
   }
 );
@@ -84,6 +157,7 @@ function mute() {
   else {
     props.player.volume = 0.0;
   }
+  // volumeChange();
 }
 //更新时间
 function timeUpdate() {
@@ -122,6 +196,7 @@ function progressMouseDown(e: MouseEvent) {
   const progress = e.target as HTMLDivElement;
   progress.onmousemove = progressMove;
   props.player.removeEventListener("timeupdate", timeUpdate);
+  window.addEventListener("mouseup", progressMouseLeave);
 }
 //进度条鼠标点击抬起
 function progressMouseUp(e: MouseEvent) {
@@ -139,11 +214,13 @@ function progressClick(e: MouseEvent) {
 }
 //鼠标离开进度条
 function progressMouseLeave(e: MouseEvent) {
-  const progress = e.target as HTMLDivElement;
-  progress.onmousemove = null;
-  if (!props.player) return;
-  musicCurrentTime.value = formatSeconds(props.player.currentTime);
-  timeUpdate();
+  if (!progress_out.value) return;
+  progress_out.value.onmousemove = null;
+  progressMouseUp(e);
+  window.removeEventListener("mouseup", progressMouseLeave);
+  // if (!props.player) return;
+  // musicCurrentTime.value = formatSeconds(props.player.currentTime);
+  // timeUpdate();
 }
 //点击播放按钮
 function playClick() {
@@ -182,7 +259,7 @@ function volumeClick(e: MouseEvent) {
     (e.clientX - volume_progress_out.value.offsetLeft) /
     volume_progress_out.value.offsetWidth;
   props.player.volume = percent;
-  volumeChange();
+  // volumeChange();
 }
 //音量轴鼠标移动
 function volumeMove(e: MouseEvent) {
@@ -194,7 +271,7 @@ function volumeMove(e: MouseEvent) {
   if (percent < 0) percent = 0;
   if (percent > 1) percent = 1;
   props.player.volume = percent;
-  volumeChange();
+  // volumeChange();
 }
 
 //音量轴鼠标按下
@@ -211,6 +288,19 @@ function volumeChange() {
   if (!props.player || !volume_progress.value || !volume_progress_out.value)
     return;
   volume_progress.value.style.width = props.player.volume * 100 + "%";
+  volume.value = props.player.volume;
+  saveVolume();
+}
+//音量数据写入缓存
+function saveVolume() {
+  localStorage.setItem("volume", volume.value.toString());
+}
+//从缓存读取音量数据
+function getVolume() {
+  const volume_string = localStorage.getItem("volume");
+  let volume_num = 0.3;
+  if (volume_string) volume_num = Number(volume_string);
+  return volume_num;
 }
 </script>
 
@@ -220,6 +310,7 @@ function volumeChange() {
   flex-direction: column;
   width: 70vh;
   user-select: none;
+  border-radius: 0.5rem;
   .player-progress {
     display: flex;
     align-items: center;
@@ -236,7 +327,7 @@ function volumeChange() {
       &-out {
         width: 100%;
         height: 5px;
-        background-color: #c1c2c3;
+        background-color: var(--bg_progress);
         border-radius: 10px;
         cursor: pointer;
         transition: height 0.3s ease;
@@ -248,7 +339,7 @@ function volumeChange() {
         height: 100%;
         width: 0;
         pointer-events: none;
-        background-color: #0b0b0b;
+        background-color: var(--bg_progress_active);
         border-radius: 10px;
       }
     }
@@ -270,20 +361,37 @@ function volumeChange() {
 
     .play-controls {
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
       align-items: center;
       width: 200px;
+      gap: 1.5rem;
       &-button {
         cursor: pointer;
+      }
+      &-icon {
+        height: 2rem;
+        width: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        &:active {
+          transform: scale(0.85);
+        }
+        fill: var(--font_color);
+      }
+      .play-pause {
+        height: 2.5rem;
+        width: 2.5rem;
       }
     }
     .controls-volume {
       display: flex;
       align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
       .volume-progress {
         width: 100px;
         height: 6px;
-        background-color: #c1c2c3;
+        background-color: var(--bg_progress);
         border-radius: 8px;
         overflow: hidden;
         transition: height 0.3s ease;
@@ -295,7 +403,7 @@ function volumeChange() {
       }
       .volume-progress-inner {
         height: 100%;
-        background-color: #0b0b0b;
+        background-color: var(--bg_progress_active);
       }
     }
   }
