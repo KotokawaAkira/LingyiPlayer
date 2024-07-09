@@ -139,7 +139,12 @@ import { MusicBuffer, MusicFileInfo } from "./type/Music";
 import { getFilesAndFoldersInDir, parseMeta } from "./request/MusicRequest";
 import { IAudioMetadata } from "../node_modules/music-metadata/lib/type";
 import MusicController from "./components/MusicController.vue";
-import colorfulImg from "./tools/ThemeColor";
+import {
+  colorComplement,
+  colorfulImg,
+  colorReverse,
+  rgbToHex,
+} from "./tools/ThemeColor";
 import { nextTick } from "process";
 
 const lyrics = ref<Lyric[]>();
@@ -188,10 +193,12 @@ ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
   nextTick(() => {
     if (pictrue.value) {
       const rgb = colorfulImg(pictrue.value);
+      const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
       document.body.style.setProperty(
         "--bg",
-        `rgb(${rgb.r},${rgb.g},${rgb.b})`
+        `rgba(${rgb.r},${rgb.g},${rgb.b},0.7)`
       );
+      document.body.style.setProperty("--lyrics_color", color_complement);
     }
   });
 });
@@ -275,7 +282,7 @@ function openFiles() {
 //添加到播放列表
 function addToPlayList(list: MusicFileInfo[]) {
   list.forEach((item) => {
-    if (!musicList.value) return;
+    if (!musicList.value) musicList.value = list;
     if (!musicList.value.find((el) => el.originPath === item.originPath))
       musicList.value.push(item);
   });
@@ -354,6 +361,7 @@ main {
     width: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
+    color:var(--lyrics_color)
   }
 }
 .lyrics-main {

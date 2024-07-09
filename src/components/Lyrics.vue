@@ -30,7 +30,11 @@
 import { ref, watch, nextTick } from "vue";
 import Lyric from "../type/Lyric";
 
-const props = defineProps<{ lyrics?: Lyric[]; player?: HTMLAudioElement,showTranslation:boolean }>();
+const props = defineProps<{
+  lyrics?: Lyric[];
+  player?: HTMLAudioElement;
+  showTranslation: boolean;
+}>();
 const index = ref<number>(0);
 let lyricsDom: NodeListOf<HTMLDivElement>;
 let lyricContainerDom: HTMLDivElement | null;

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, nativeImage } from "electron";
 import path from "path";
 //引入remoteMain
 import remoteMain from "@electron/remote/main";
@@ -62,3 +62,69 @@ ipcMain.on("doLoadMusic", async (_event, args: string) => {
 ipcMain.on("progressUpdate", (_event, progress: number) => {
   window.setProgressBar(progress);
 });
+//任务栏播放控制
+ipcMain.on(
+  "doSetTumbarButtons",
+  (
+    _event,
+    args: {
+      isPlaying: boolean;
+      now: number;
+      pre: (now: number) => void;
+      playClick: () => void;
+      next: (now: number) => void;
+    }
+  ) => {
+    setTumbarButtons(args);
+  }
+);
+//控制 上一首
+function doPre() {
+  window.webContents.send("doPre");
+}
+//控制 播放
+function doPlay() {
+  window.webContents.send("doPlay");
+}
+//控制下一首
+function doNext() {
+  window.webContents.send("doNext");
+}
+//设置
+function setTumbarButtons(args: { isPlaying: boolean }) {
+  const buttons = [
+    {
+      tooltip: "上一首",
+      icon: nativeImage.createFromPath(
+        path.join(path.dirname(__dirname), "/src/assets/previous.png")
+      ),
+      click: doPre,
+    },
+    {
+      tooltip: "播放",
+      icon: nativeImage.createFromPath(
+        path.join(path.dirname(__dirname), "/src/assets/play.png")
+      ),
+      click: doPlay,
+    },
+    {
+      tooltip: "下一首",
+      icon: nativeImage.createFromPath(
+        path.join(path.dirname(__dirname), "/src/assets/next.png")
+      ),
+      click: doNext,
+    },
+  ];
+  if (args.isPlaying) {
+    buttons[1].tooltip = "暂停";
+    buttons[1].icon = nativeImage.createFromPath(
+      path.join(path.dirname(__dirname), "/src/assets/stop.png")
+    );
+  } else {
+    buttons[1].tooltip = "播放";
+    buttons[1].icon = nativeImage.createFromPath(
+      path.join(path.dirname(__dirname), "/src/assets/play.png")
+    );
+  }
+  window.setThumbarButtons(buttons);
+}

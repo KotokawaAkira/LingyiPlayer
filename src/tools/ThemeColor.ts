@@ -27,4 +27,15 @@ function colorfulImg(img: HTMLImageElement) {
   rgb.b = ~~(rgb.b / count);
   return rgb;
 }
-export default colorfulImg;
+function rgbToHex(r: number, g: number, b: number) {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+function colorReverse(oldColor:any){
+  oldColor = '0x' + oldColor.replace(/#/g, '');
+  let str = '000000' + (0xFFFFFF - oldColor).toString(16);
+  return '#'+ str.substring(str.length - 6, str.length);
+}
+function colorComplement(r: number, g: number, b: number){
+  return `rgb(${255-r+10},${255-g+10},${255-b-10})`
+}
+export { colorfulImg,rgbToHex,colorReverse,colorComplement };

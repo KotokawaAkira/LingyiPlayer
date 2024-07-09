@@ -5,9 +5,8 @@ const require$$0 = require("events");
 const fs$1 = require("fs");
 const fs = require("node:fs");
 require("node:buffer");
-const require$$1 = require("tty");
-const require$$1$1 = require("util");
-const require$$0$1 = require("os");
+const require$$0$1 = require("tty");
+const require$$1 = require("util");
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -709,8 +708,7 @@ var browser = { exports: {} };
 var ms;
 var hasRequiredMs;
 function requireMs() {
-  if (hasRequiredMs)
-    return ms;
+  if (hasRequiredMs) return ms;
   hasRequiredMs = 1;
   var s = 1e3;
   var m = s * 60;
@@ -827,8 +825,7 @@ function requireMs() {
 var common;
 var hasRequiredCommon;
 function requireCommon() {
-  if (hasRequiredCommon)
-    return common;
+  if (hasRequiredCommon) return common;
   hasRequiredCommon = 1;
   function setup(env) {
     createDebug.debug = createDebug;
@@ -991,8 +988,7 @@ function requireCommon() {
 }
 var hasRequiredBrowser;
 function requireBrowser() {
-  if (hasRequiredBrowser)
-    return browser.exports;
+  if (hasRequiredBrowser) return browser.exports;
   hasRequiredBrowser = 1;
   (function(module, exports) {
     exports.formatArgs = formatArgs;
@@ -1162,131 +1158,13 @@ function requireBrowser() {
   return browser.exports;
 }
 var node = { exports: {} };
-var hasFlag;
-var hasRequiredHasFlag;
-function requireHasFlag() {
-  if (hasRequiredHasFlag)
-    return hasFlag;
-  hasRequiredHasFlag = 1;
-  hasFlag = (flag, argv = process.argv) => {
-    const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
-    const position = argv.indexOf(prefix + flag);
-    const terminatorPosition = argv.indexOf("--");
-    return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
-  };
-  return hasFlag;
-}
-var supportsColor_1;
-var hasRequiredSupportsColor;
-function requireSupportsColor() {
-  if (hasRequiredSupportsColor)
-    return supportsColor_1;
-  hasRequiredSupportsColor = 1;
-  const os = require$$0$1;
-  const tty = require$$1;
-  const hasFlag2 = requireHasFlag();
-  const { env } = process;
-  let forceColor;
-  if (hasFlag2("no-color") || hasFlag2("no-colors") || hasFlag2("color=false") || hasFlag2("color=never")) {
-    forceColor = 0;
-  } else if (hasFlag2("color") || hasFlag2("colors") || hasFlag2("color=true") || hasFlag2("color=always")) {
-    forceColor = 1;
-  }
-  if ("FORCE_COLOR" in env) {
-    if (env.FORCE_COLOR === "true") {
-      forceColor = 1;
-    } else if (env.FORCE_COLOR === "false") {
-      forceColor = 0;
-    } else {
-      forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
-    }
-  }
-  function translateLevel(level) {
-    if (level === 0) {
-      return false;
-    }
-    return {
-      level,
-      hasBasic: true,
-      has256: level >= 2,
-      has16m: level >= 3
-    };
-  }
-  function supportsColor(haveStream, streamIsTTY) {
-    if (forceColor === 0) {
-      return 0;
-    }
-    if (hasFlag2("color=16m") || hasFlag2("color=full") || hasFlag2("color=truecolor")) {
-      return 3;
-    }
-    if (hasFlag2("color=256")) {
-      return 2;
-    }
-    if (haveStream && !streamIsTTY && forceColor === void 0) {
-      return 0;
-    }
-    const min = forceColor || 0;
-    if (env.TERM === "dumb") {
-      return min;
-    }
-    if (process.platform === "win32") {
-      const osRelease = os.release().split(".");
-      if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
-        return Number(osRelease[2]) >= 14931 ? 3 : 2;
-      }
-      return 1;
-    }
-    if ("CI" in env) {
-      if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI", "GITHUB_ACTIONS", "BUILDKITE"].some((sign) => sign in env) || env.CI_NAME === "codeship") {
-        return 1;
-      }
-      return min;
-    }
-    if ("TEAMCITY_VERSION" in env) {
-      return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-    }
-    if (env.COLORTERM === "truecolor") {
-      return 3;
-    }
-    if ("TERM_PROGRAM" in env) {
-      const version = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
-      switch (env.TERM_PROGRAM) {
-        case "iTerm.app":
-          return version >= 3 ? 3 : 2;
-        case "Apple_Terminal":
-          return 2;
-      }
-    }
-    if (/-256(color)?$/i.test(env.TERM)) {
-      return 2;
-    }
-    if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-      return 1;
-    }
-    if ("COLORTERM" in env) {
-      return 1;
-    }
-    return min;
-  }
-  function getSupportLevel(stream) {
-    const level = supportsColor(stream, stream && stream.isTTY);
-    return translateLevel(level);
-  }
-  supportsColor_1 = {
-    supportsColor: getSupportLevel,
-    stdout: translateLevel(supportsColor(true, tty.isatty(1))),
-    stderr: translateLevel(supportsColor(true, tty.isatty(2)))
-  };
-  return supportsColor_1;
-}
 var hasRequiredNode;
 function requireNode() {
-  if (hasRequiredNode)
-    return node.exports;
+  if (hasRequiredNode) return node.exports;
   hasRequiredNode = 1;
   (function(module, exports) {
-    const tty = require$$1;
-    const util = require$$1$1;
+    const tty = require$$0$1;
+    const util = require$$1;
     exports.init = init;
     exports.log = log;
     exports.formatArgs = formatArgs;
@@ -1300,7 +1178,7 @@ function requireNode() {
     );
     exports.colors = [6, 2, 3, 4, 5, 1];
     try {
-      const supportsColor = requireSupportsColor();
+      const supportsColor = require("supports-color");
       if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
         exports.colors = [
           20,
@@ -1901,20 +1779,16 @@ initDebug("music-metadata:parser");
 async function loadMusic(path2) {
   return new Promise((resolve, reject) => {
     fs$1.readFile(path2, (err, data) => {
-      if (err)
-        reject(err);
-      else
-        resolve(data);
+      if (err) reject(err);
+      else resolve(data);
     });
   });
 }
 async function loadLyric(path2) {
   return new Promise((resolve, reject) => {
     fs$1.readFile(path2, (err, data) => {
-      if (err)
-        reject(void 0);
-      else
-        resolve(data.toString());
+      if (err) reject(void 0);
+      else resolve(data.toString());
     });
   });
 }
@@ -1947,13 +1821,11 @@ const createWindows = () => {
 require$$3.app.whenReady().then(() => {
   window$1 = createWindows();
   require$$3.app.on("activate", () => {
-    if (require$$3.BrowserWindow.getAllWindows.length === 0)
-      window$1 = createWindows();
+    if (require$$3.BrowserWindow.getAllWindows.length === 0) window$1 = createWindows();
   });
 });
 require$$3.app.on("window-all-closed", () => {
-  if (process.platform !== "darwin")
-    require$$3.app.quit();
+  if (process.platform !== "darwin") require$$3.app.quit();
 });
 require$$3.ipcMain.on("doLoadLyric", async (_event, args) => {
   const res = await loadLyric(args);
@@ -1966,3 +1838,55 @@ require$$3.ipcMain.on("doLoadMusic", async (_event, args) => {
 require$$3.ipcMain.on("progressUpdate", (_event, progress) => {
   window$1.setProgressBar(progress);
 });
+require$$3.ipcMain.on(
+  "doSetTumbarButtons",
+  (_event, args) => {
+    setTumbarButtons(args);
+  }
+);
+function doPre() {
+  window$1.webContents.send("doPre");
+}
+function doPlay() {
+  window$1.webContents.send("doPlay");
+}
+function doNext() {
+  window$1.webContents.send("doNext");
+}
+function setTumbarButtons(args) {
+  const buttons = [
+    {
+      tooltip: "上一首",
+      icon: require$$3.nativeImage.createFromPath(
+        path.join(path.dirname(__dirname), "/src/assets/previous.png")
+      ),
+      click: doPre
+    },
+    {
+      tooltip: "播放",
+      icon: require$$3.nativeImage.createFromPath(
+        path.join(path.dirname(__dirname), "/src/assets/play.png")
+      ),
+      click: doPlay
+    },
+    {
+      tooltip: "下一首",
+      icon: require$$3.nativeImage.createFromPath(
+        path.join(path.dirname(__dirname), "/src/assets/next.png")
+      ),
+      click: doNext
+    }
+  ];
+  if (args.isPlaying) {
+    buttons[1].tooltip = "暂停";
+    buttons[1].icon = require$$3.nativeImage.createFromPath(
+      path.join(path.dirname(__dirname), "/src/assets/stop.png")
+    );
+  } else {
+    buttons[1].tooltip = "播放";
+    buttons[1].icon = require$$3.nativeImage.createFromPath(
+      path.join(path.dirname(__dirname), "/src/assets/play.png")
+    );
+  }
+  window$1.setThumbarButtons(buttons);
+}

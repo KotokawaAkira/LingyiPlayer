@@ -280,7 +280,31 @@ watch(
     volumeChange();
   }
 );
+doSetTumbarButton();
+watch(isPlaying, () => {
+  doSetTumbarButton();
+});
 
+initialize();
+
+function initialize() {
+  //初始化播放模式
+  const mode = getPlayMode();
+  if (mode) playMode.value = mode;
+  //初始化任务栏按钮
+  //接收main进程的 上一首
+  ipcRenderer.on("doPre", () => {
+    preMusic(props.now);
+  });
+  //接收main进程的 播放
+  ipcRenderer.on("doPlay", () => {
+    playClick();
+  });
+  //接收main进程的 下一首
+  ipcRenderer.on("doNext", () => {
+    nextMusic(props.now);
+  });
+}
 //静音事件
 function mute() {
   if (!props.player) return;
@@ -420,6 +444,7 @@ function switchPlayMode() {
       playMode.value = { type: 0, label: "列表循环" };
       break;
   }
+  savePlayMode();
 }
 /**音量进度条**/
 //点击音量轴
@@ -430,7 +455,6 @@ function volumeClick(e: MouseEvent) {
     (e.clientX - volume_progress_out.value.offsetLeft) /
     volume_progress_out.value.offsetWidth;
   props.player.volume = percent;
-  // volumeChange();
 }
 //音量轴鼠标移动
 function volumeMove(e: MouseEvent) {
@@ -442,7 +466,6 @@ function volumeMove(e: MouseEvent) {
   if (percent < 0) percent = 0;
   if (percent > 1) percent = 1;
   props.player.volume = percent;
-  // volumeChange();
 }
 
 //音量轴鼠标按下
@@ -489,6 +512,22 @@ function getVolume() {
 //状态栏进度条更新
 function doProgressUpdate(progress: number) {
   ipcRenderer.send("progressUpdate", progress);
+}
+//向main进程传出 音乐控制函数
+function doSetTumbarButton() {
+  ipcRenderer.send("doSetTumbarButtons", {
+    isPlaying: isPlaying.value,
+  });
+}
+//播放模式写入缓存
+function savePlayMode() {
+  localStorage.setItem("play-mode", JSON.stringify(playMode.value));
+}
+//从缓存读取播放模式
+function getPlayMode() {
+  const play_mode_string = localStorage.getItem("play-mode");
+  if (!play_mode_string) return;
+  return JSON.parse(play_mode_string) as PlayMode;
 }
 </script>
 
