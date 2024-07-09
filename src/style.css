@@ -21,7 +21,8 @@
   --color_tjx: #e3b4bf;
   --bg_progress: #242424;
   --bg_progress_active: #d4d4d4;
-  --side_window_bg:#42424260;
+  --side_window_bg:#42424286;
+  --bg_lyrics_hover:#64646483;
 }
 
 a {
@@ -91,11 +92,12 @@ button:focus-visible {
     --bg: #e3e3e3;
     --bg_control:#fff;
     --font_color: rgb(#0b0b0b);
-    --bg_progress: #e0e0e0a2;
-    --bg_progress_active: #0b0b0be8;
+    --bg_progress: #e0e0e0;
+    --bg_progress_active: #0b0b0b;
     --lyrics_color: #fff;
     --lyrics_color_active: #242424;
-    --side_window_bg:#e3e3e360;
+    --side_window_bg:#e3e3e385;
+    --bg_lyrics_hover:#dcdcdc88;
   }
   a:hover {
     color: #747bff;

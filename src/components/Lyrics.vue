@@ -24,26 +24,16 @@
       <div v-if="props.lyrics" class="lyrics-placeholder-btm"></div>
       <div v-else class="no-lyrics">没有歌词 / No lyrics</div>
     </div>
-    <button
-      v-if="props.lyrics?.some((item) => item.translation)"
-      @click="changeShowTranslate"
-      :class="`lyric-container-translate ${
-        showTranslation === true ? 'lyric-container-translate-active' : null
-      }`"
-    >
-      翻译
-    </button>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watch, nextTick } from "vue";
 import Lyric from "../type/Lyric";
 
-const props = defineProps<{ lyrics?: Lyric[]; player?: HTMLAudioElement }>();
+const props = defineProps<{ lyrics?: Lyric[]; player?: HTMLAudioElement,showTranslation:boolean }>();
 const index = ref<number>(0);
 let lyricsDom: NodeListOf<HTMLDivElement>;
 let lyricContainerDom: HTMLDivElement | null;
-const showTranslation = ref(true);
 let unLocked = true;
 
 watch(() => props.player, setPlayer);
@@ -110,9 +100,6 @@ function lyricScroll(i: number) {
       lyricContainerDom.scrollTo({ left: 0, top: 0, behavior: "smooth" });
   }
 }
-function changeShowTranslate() {
-  showTranslation.value = !showTranslation.value;
-}
 </script>
 <style lang="scss">
 .lyrics-body {
@@ -153,7 +140,7 @@ function changeShowTranslate() {
       padding: 0 6px;
       border-radius: 6px;
       &:hover {
-        background-color: rgba(220, 220, 220, 0.8);
+        background-color: var(--bg_lyrics_hover);
       }
       &-active {
         color: var(--lyrics_color_active);

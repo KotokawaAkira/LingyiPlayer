@@ -5,6 +5,8 @@ type MusicBuffer = {
 type MusicFileInfo = {
   type: string;
   name: string;
-  originPath:string
+  originPath:string;
+  active?:boolean;
+  time?:number;
 };
 export type { MusicBuffer,MusicFileInfo };

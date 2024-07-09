@@ -1924,6 +1924,8 @@ const createWindows = () => {
   const window2 = new require$$3.BrowserWindow({
     width: 1400,
     height: 800,
+    minWidth: 875,
+    minHeight: 660,
     webPreferences: {
       contextIsolation: false,
       //是否隔离上下文
@@ -1960,4 +1962,7 @@ require$$3.ipcMain.on("doLoadLyric", async (_event, args) => {
 require$$3.ipcMain.on("doLoadMusic", async (_event, args) => {
   const res = await loadMusic(args);
   window$1.webContents.send("loadMusic", { buffer: res, originPath: args });
+});
+require$$3.ipcMain.on("progressUpdate", (_event, progress) => {
+  window$1.setProgressBar(progress);
 });

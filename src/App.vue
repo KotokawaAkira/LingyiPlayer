@@ -11,7 +11,14 @@
             };base64,${musicMeta.common.picture[0].data.toString('base64')}`"
           />
         </div>
-        <div class="meta-container-title">
+        <div
+          class="meta-container-title"
+          :title="
+            musicMeta?.common !== undefined
+              ? musicMeta.common.artist + ' - ' + musicMeta.common.title
+              : musicFileName
+          "
+        >
           <span v-if="musicMeta?.common.artist && musicMeta?.common.title">
             {{ musicMeta.common.artist }} - {{ musicMeta.common.title }}
           </span>
@@ -24,7 +31,7 @@
         <div class="terminal">
           <audio v-show="false" ref="player" controls :src="musicSrcURL" />
         </div>
-        <Lyrics :lyrics :player />
+        <Lyrics :lyrics :player :showTranslation />
       </div>
       <div
         :class="`side-window ${showSideWindow ? 'side-window-active' : 'null'}`"
@@ -49,7 +56,48 @@
           </svg>
         </div>
         <div class="music-list">
-          <button @click="openSelector">选择</button>
+          <div class="music-list-options">
+            <div title="添加文件" @click="openFiles">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="music-list-options-icon"
+              >
+                <path
+                  d="M19.74,8.33l-5.44-6A1,1,0,0,0,13.56,2h-7A2.53,2.53,0,0,0,4,4.5v15A2.53,2.53,0,0,0,6.56,22H17.44A2.53,2.53,0,0,0,20,19.5V9A1,1,0,0,0,19.74,8.33ZM14,5l2.74,3h-2A.79.79,0,0,1,14,7.15Zm3.44,15H6.56A.53.53,0,0,1,6,19.5V4.5A.53.53,0,0,1,6.56,4H12V7.15A2.79,2.79,0,0,0,14.71,10H18v9.5A.53.53,0,0,1,17.44,20Z"
+                />
+                <path
+                  d="M14,13H13V12a1,1,0,0,0-2,0v1H10a1,1,0,0,0,0,2h1v1a1,1,0,0,0,2,0V15h1a1,1,0,0,0,0-2Z"
+                />
+              </svg>
+            </div>
+            <div title="添加文件夹">
+              <svg
+                @click="openFolder"
+                xmlns="http://www.w3.org/2000/svg"
+                class="music-list-options-icon"
+              >
+                <path
+                  d="M14,13H13V12a1,1,0,0,0-2,0v1H10a1,1,0,0,0,0,2h1v1a1,1,0,0,0,2,0V15h1a1,1,0,0,0,0-2Z"
+                />
+                <path
+                  d="M19.5,7.05h-7L9.87,3.87A1,1,0,0,0,9.1,3.5H4.5A2.47,2.47,0,0,0,2,5.93V18.07A2.47,2.47,0,0,0,4.5,20.5h15A2.47,2.47,0,0,0,22,18.07V9.48A2.47,2.47,0,0,0,19.5,7.05Zm.5,11a.46.46,0,0,1-.5.43H4.5a.46.46,0,0,1-.5-.43V5.93a.46.46,0,0,1,.5-.43H8.63l2.6,3.18a1,1,0,0,0,.77.37h7.5a.46.46,0,0,1,.5.43Z"
+                />
+              </svg>
+            </div>
+            <div title="删除">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="music-list-options-icon"
+              >
+                <path
+                  d="M4.251,9.031c-0,0 0.194,4.655 0.34,8.167c0.106,2.544 2.199,4.552 4.746,4.552c1.68,0 3.646,0 5.326,0c2.547,0 4.64,-2.008 4.746,-4.552c0.146,-3.512 0.34,-8.167 0.34,-8.167c0.018,-0.413 -0.304,-0.763 -0.718,-0.78c-0.413,-0.018 -0.763,0.304 -0.78,0.718c-0,-0 -0.194,4.655 -0.341,8.166c-0.072,1.741 -1.505,3.115 -3.247,3.115c-1.68,0 -3.646,0 -5.326,-0c-1.742,0 -3.175,-1.374 -3.247,-3.115c-0.147,-3.511 -0.341,-8.166 -0.341,-8.166c-0.017,-0.414 -0.367,-0.736 -0.78,-0.718c-0.414,0.017 -0.736,0.367 -0.718,0.78Z"
+                />
+                <path
+                  d="M7.459,5.25l0.374,-1.12c0.374,-1.123 1.425,-1.88 2.609,-1.88c0.944,0 2.172,0 3.116,0c1.184,-0 2.235,0.757 2.609,1.88l0.374,1.12l3.459,0c0.414,-0 0.75,0.336 0.75,0.75c0,0.414 -0.336,0.75 -0.75,0.75l-16,0c-0.414,-0 -0.75,-0.336 -0.75,-0.75c0,-0.414 0.336,-0.75 0.75,-0.75l3.459,0Zm7.5,0l-0.215,-0.645c-0.17,-0.511 -0.647,-0.855 -1.186,-0.855c-0.944,-0 -2.172,-0 -3.116,0c-0.539,-0 -1.016,0.344 -1.186,0.855l-0.215,0.645l5.918,0Z"
+                />
+              </svg>
+            </div>
+          </div>
           <ul class="music-list-container">
             <li
               :class="`music-list-container-item ${
@@ -72,6 +120,10 @@
         :musicList
         :changeMusic
         :now
+        :changeShowTranslate="{
+          isShow: showTranslation,
+          changeShow: changeShowTranslate,
+        }"
       />
     </div>
   </main>
@@ -100,13 +152,29 @@ const pictrue = ref<HTMLImageElement>();
 const musicDuration = ref(0);
 const now = ref(0);
 const showSideWindow = ref(false);
+const showTranslation = ref(true);
 
 //监听音乐列表的变化
-watch(musicList, (val) => {
-  if (!val || val.length === 0) return;
-  ipcRenderer.send("doLoadMusic", val[0].originPath);
-  musicFileName.value = val[0].name;
-});
+watch(
+  musicList,
+  (val) => {
+    if (!val || val.length === 0) return;
+    let index = 0;
+    for (let i = 0; i < val.length; i++) {
+      if (val[i].active) {
+        index = i;
+        break;
+      }
+    }
+    ipcRenderer.send("doLoadMusic", val[index].originPath);
+    musicFileName.value = val[index].name;
+    now.value = index;
+    saveMusicListInStorage(val);
+  },
+  { deep: true }
+);
+
+initialize();
 
 //监听主进程加载音乐
 ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
@@ -131,6 +199,10 @@ ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
 ipcRenderer.on("loadLyric", (_event, args: string) => {
   lyrics.value = executeLyrics(args);
 });
+
+function initialize() {
+  musicList.value = getMusicListFromStorage();
+}
 
 //处理歌词
 function executeLyrics(lyricBody: string) {
@@ -163,7 +235,7 @@ function executeLyrics(lyricBody: string) {
   return executedLyric;
 }
 //打开文件夹
-function openSelector() {
+function openFolder() {
   dialog
     .showOpenDialog({
       title: "选择文件",
@@ -172,10 +244,42 @@ function openSelector() {
     })
     .then((res) => {
       const result = getFilesAndFoldersInDir(res.filePaths[0], []);
-      musicList.value = result;
+      addToPlayList(result);
     });
 }
-
+//打开文件
+function openFiles() {
+  dialog
+    .showOpenDialog({
+      title: "选择文件",
+      filters: [{ name: "Music", extensions: ["mp3", "wav", "flac"] }],
+      properties: ["openFile", "multiSelections"],
+    })
+    .then((res) => {
+      const list: MusicFileInfo[] = [];
+      for (let i = 0; i < res.filePaths.length; i++) {
+        const lastPoint = res.filePaths[i].lastIndexOf(".");
+        const lastSplit = res.filePaths[i].lastIndexOf("/");
+        const type = res.filePaths[i].slice(lastPoint + 1);
+        if (type === "mp3" || type === "flac" || type === "wav") {
+          list.push({
+            type,
+            name: res.filePaths[i].slice(lastSplit + 1),
+            originPath: res.filePaths[i],
+          });
+        }
+      }
+      addToPlayList(list);
+    });
+}
+//添加到播放列表
+function addToPlayList(list: MusicFileInfo[]) {
+  list.forEach((item) => {
+    if (!musicList.value) return;
+    if (!musicList.value.find((el) => el.originPath === item.originPath))
+      musicList.value.push(item);
+  });
+}
 //根据musicPath获取同目录下的lyricPath
 function getLyric(musicPath: string) {
   const lastPoint = musicPath.lastIndexOf("\.");
@@ -188,6 +292,26 @@ function changeMusic(item: MusicFileInfo, index: number) {
   musicFileName.value = item.name;
   ipcRenderer.send("doLoadMusic", item.originPath);
   player.value!.oncanplay = () => player.value?.play();
+  //设置当前正在播放状态 用于保存上次播放记录
+  for (let i = 0; i < musicList.value!.length; i++) {
+    if (i === index) musicList.value![i].active = true;
+    else musicList.value![i].active = false;
+  }
+  saveMusicListInStorage(musicList.value!);
+}
+//储存当前播放列表
+function saveMusicListInStorage(val: MusicFileInfo[]) {
+  localStorage.setItem("music-list", JSON.stringify(val));
+}
+//获取当前储存的播放列表
+function getMusicListFromStorage() {
+  const music_list = localStorage.getItem("music-list");
+  if (!music_list) return;
+  return JSON.parse(music_list) as MusicFileInfo[];
+}
+//是否显示翻译
+function changeShowTranslate() {
+  return (showTranslation.value = !showTranslation.value);
 }
 </script>
 
@@ -212,12 +336,13 @@ main {
 .meta-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 3vh;
   &-main {
     aspect-ratio: 1;
     width: 30vw;
     max-width: 500px;
-    min-width: 400px;
+    min-width: 300px;
     img {
       width: 100%;
       height: 100%;
@@ -226,6 +351,9 @@ main {
   &-title {
     text-align: center;
     font-size: 1.5rem;
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 .lyrics-main {
@@ -242,7 +370,7 @@ main {
   right: 0;
   display: flex;
   align-items: center;
-  transition: all 0.5s ease;
+  transition: transform 0.5s ease;
   transform: translate(calc(100% - 2rem));
   &-active {
     transform: translate(0%);
@@ -255,9 +383,9 @@ main {
       height: 100%;
       width: 100%;
       fill: var(--font_color);
-      transition: all 0.5 ease;
+      transition: all 0.3s ease;
       &-active {
-        transform: rotate(180deg);
+        transform: rotate(-180deg);
       }
     }
   }
@@ -271,10 +399,31 @@ main {
     border-bottom-left-radius: 0.5rem;
     background-color: var(--side_window_bg);
     max-width: 22rem;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 1rem;
+    &-options {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 1rem;
+      &-icon {
+        height: 2rem;
+        width: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        &:active {
+          transform: scale(0.85);
+        }
+        fill: var(--font_color);
+      }
+    }
     &-container {
       max-height: 40vh;
-      overflow: auto;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
 
       &::-webkit-scrollbar {
         width: 0.5rem;
@@ -296,7 +445,7 @@ main {
         cursor: pointer;
         transform-origin: 0 0;
         box-sizing: border-box;
-        padding: 0.3rem 0;
+        padding: 0.3rem 0.5rem 0.3rem 0.3rem;
         white-space: nowrap;
         &:hover {
           color: var(--lyrics_color);

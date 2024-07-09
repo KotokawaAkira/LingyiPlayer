@@ -24,7 +24,11 @@
     </div>
     <div class="controls">
       <div class="play-controls">
-        <div class="play-controls-button" @click="preMusic(props.now)">
+        <div
+          class="play-controls-button"
+          @click="preMusic(props.now)"
+          title="上一首"
+        >
           <svg
             class="play-controls-icon"
             viewBox="0 0 24 24"
@@ -35,7 +39,11 @@
             />
           </svg>
         </div>
-        <div class="play-controls-button" @click="playClick">
+        <div
+          class="play-controls-button"
+          @click="playClick"
+          :title="isPlaying ? '暂停' : '播放'"
+        >
           <svg
             :class="['play-pause', 'play-controls-icon']"
             version="1.1"
@@ -55,7 +63,11 @@
             />
           </svg>
         </div>
-        <div class="play-controls-button" @click="nextMusic(props.now)">
+        <div
+          class="play-controls-button"
+          @click="nextMusic(props.now)"
+          title="下一首"
+        >
           <svg
             class="play-controls-icon"
             viewBox="0 0 24 24"
@@ -69,46 +81,161 @@
           </svg>
         </div>
       </div>
-      <div class="controls-volume">
-        <div style="height: 2rem" @click="mute">
+      <div class="extension-controls">
+        <div
+          style="height: 2rem; width: 2rem"
+          title="翻译"
+          @click="changeShowTranslate.changeShow"
+        >
           <svg
+            v-if="changeShowTranslate.isShow"
             class="play-controls-icon"
-            v-if="volume === 0 || volume < 0"
-            viewBox="0 0 32 32"
             xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            version="1.1"
           >
             <path
-              d="M19.45,4.11a1,1,0,0,0-1,.09L10.67,10H3a1,1,0,0,0-1,1V21a1,1,0,0,0,1,1h7.67l7.73,5.8A1,1,0,0,0,20,27V5A1,1,0,0,0,19.45,4.11Z"
-            />
-            <path
-              d="M27.41,16l2.29-2.29a1,1,0,0,0-1.41-1.41L26,14.59l-2.29-2.29a1,1,0,0,0-1.41,1.41L24.59,16l-2.29,2.29a1,1,0,1,0,1.41,1.41L26,17.41l2.29,2.29a1,1,0,0,0,1.41-1.41Z"
+              d="M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07M18.5,10H16.5L12,22H14L15.12,19H19.87L21,22H23L18.5,10M15.88,17L17.5,12.67L19.12,17H15.88Z"
             />
           </svg>
           <svg
             v-else
             class="play-controls-icon"
-            viewBox="0 0 32 32"
             xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            version="1.1"
           >
             <path
-              d="M19.45,4.11a1,1,0,0,0-1,.09L10.67,10H3a1,1,0,0,0-1,1V21a1,1,0,0,0,1,1h7.67l7.73,5.8A1,1,0,0,0,20,27V5A1,1,0,0,0,19.45,4.11Z"
+              d="M12.17,5.81C11.87,6.69 11.47,7.55 11,8.39L12.35,9.74C13.11,8.5 13.71,7.18 14.13,5.81H17.16V3.75H9.94V1.69H7.87V3.75H6.37L8.43,5.81H12.17M15.53,12.91L17.03,14.41L17.67,12.69L19.08,16.47L22.39,19.77L18.7,9.94H16.64L15.53,12.91M1.31,1.31L0,2.62L1.13,3.75H0.65V5.81H3.19L5.26,7.88H4.46C5.21,9.56 6.24,11.15 7.53,12.58L2.28,17.76L3.75,19.22L8.91,14.07L12.11,17.27L12.8,15.43L14.1,16.72L12,22.31H14.06L15.22,19.22H16.6L21.38,24L22.69,22.69L1.31,1.31Z"
             />
-            <path
-              d="M23,12a1,1,0,0,0-1,1v6a1,1,0,0,0,2,0V13A1,1,0,0,0,23,12Z"
-            />
-            <path
-              d="M26,10a1,1,0,0,0-1,1V21a1,1,0,0,0,2,0V11A1,1,0,0,0,26,10Z"
-            />
-            <path d="M29,8a1,1,0,0,0-1,1V23a1,1,0,0,0,2,0V9A1,1,0,0,0,29,8Z" />
           </svg>
         </div>
         <div
-          ref="volume_progress_out"
-          class="volume-progress"
-          @click="volumeClick"
-          @mousedown="volumeDown"
+          style="height: 2rem; width: 2rem"
+          :title="playMode.label"
+          @click="switchPlayMode"
         >
-          <div ref="volume_progress" class="volume-progress-inner"></div>
+          <svg
+            v-if="playMode.type === 0"
+            class="play-controls-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path
+              d="M16 7h-5a6 6 0 1 0 0 12h9v2h-9a8 8 0 1 1 0-16h5V1l6 5-6 5V7z"
+            />
+          </svg>
+          <svg
+            v-if="playMode.type === 1"
+            class="play-controls-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 456.559 456.559"
+            style="enable-background: new 0 0 456.559 456.559"
+            xml:space="preserve"
+          >
+            <path
+              d="M351.79,151.874c-3.434,0-6.875-1.308-9.498-3.931c-5.238-5.245-5.238-13.75,0-18.995l53.02-53.006l-53.02-53.013
+		c-5.238-5.245-5.238-13.75,0-18.995c5.245-5.245,13.75-5.245,18.995,0l62.511,62.511c2.518,2.518,3.931,5.938,3.931,9.498
+		c0,3.56-1.413,6.98-3.931,9.498l-62.511,62.504C358.665,150.566,355.224,151.874,351.79,151.874z"
+            />
+            <path
+              d="M42.958,227.428c-7.413,0-13.428-6.015-13.428-13.428v-80.932c0-38.907,31.647-70.554,70.554-70.554h314.218
+		c7.413,0,13.428,6.015,13.428,13.428c0,7.413-6.015,13.428-13.428,13.428H100.083c-24.094,0-43.697,19.604-43.697,43.697V214
+		C56.386,221.414,50.371,227.428,42.958,227.428z"
+            />
+            <path
+              d="M357.162,394.049H42.258c-7.413,0-13.428-6.015-13.428-13.428s6.015-13.428,13.428-13.428h314.903
+		c24.101,0,43.704-19.604,43.704-43.697v-82.534c0-7.413,6.015-13.428,13.428-13.428c7.413,0,13.428,6.015,13.428,13.428v82.534
+		C427.722,362.402,396.068,394.049,357.162,394.049z"
+            />
+            <path
+              d="M104.769,456.559c-3.434,0-6.875-1.308-9.498-3.931l-62.511-62.511c-2.518-2.518-3.931-5.938-3.931-9.498
+		s1.413-6.98,3.931-9.498l62.511-62.504c5.245-5.245,13.75-5.245,18.995,0c5.238,5.245,5.238,13.75,0,18.995l-53.02,53.006
+		l53.02,53.013c5.238,5.245,5.238,13.75,0,18.995C111.644,455.252,108.203,456.559,104.769,456.559z"
+            />
+          </svg>
+          <svg
+            v-if="playMode.type === 2"
+            class="play-controls-icon"
+            role="img"
+            focusable="false"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 456.556 456.556"
+            style="enable-background: new 0 0 456.556 456.556"
+            xml:space="preserve"
+          >
+            <path
+              d="M383.883,184.953c-3.437,0-6.871-1.308-9.494-3.931c-5.245-5.245-5.245-13.75,0-18.995l49.747-49.747l-49.747-49.747
+		c-5.245-5.245-5.245-13.75,0-18.995s13.743-5.245,18.988,0l59.245,59.245c5.245,5.245,5.245,13.75,0,18.995l-59.245,59.245
+		C390.755,183.645,387.321,184.953,383.883,184.953z"
+            />
+            <path
+              d="M251.658,184.953c-2.588,0-5.2-0.741-7.504-2.301c-6.148-4.147-7.763-12.498-3.612-18.646l40.008-59.245
+		c2.497-3.693,6.665-5.91,11.127-5.91h121.829c7.417,0,13.428,6.015,13.428,13.428c0,7.413-6.011,13.428-13.428,13.428H298.811
+		l-36.015,53.335C260.201,182.883,255.966,184.953,251.658,184.953z"
+            />
+            <path
+              d="M135.257,357.33H13.428C6.011,357.33,0,351.315,0,343.901c0-7.413,6.011-13.428,13.428-13.428h114.695l39.424-58.377
+		c4.154-6.141,12.498-7.77,18.642-3.609c6.148,4.147,7.763,12.498,3.612,18.646l-43.418,64.287
+		C143.887,355.112,139.719,357.33,135.257,357.33z"
+            />
+            <path
+              d="M383.883,416.952c-3.437,0-6.871-1.308-9.494-3.931c-5.245-5.245-5.245-13.75,0-18.995l49.747-49.747l-49.747-49.747
+		c-5.245-5.245-5.245-13.75,0-18.995c5.245-5.245,13.743-5.245,18.988,0l59.245,59.245c5.245,5.245,5.245,13.75,0,18.995
+		l-59.245,59.245C390.755,415.644,387.321,416.952,383.883,416.952z"
+            />
+            <path
+              d="M413.506,357.707H291.677c-4.462,0-8.63-2.217-11.127-5.91L128.123,126.086H13.428C6.011,126.086,0,120.071,0,112.658
+		c0-7.413,6.011-13.428,13.428-13.428h121.829c4.462,0,8.63,2.217,11.127,5.91l152.427,225.711h114.695
+		c7.417,0,13.428,6.015,13.428,13.428C426.934,351.693,420.923,357.707,413.506,357.707z"
+            />
+          </svg>
+        </div>
+        <div class="controls-volume" @wheel="volumeMouseWheel" title="音量">
+          <div style="height: 2rem" @click="mute">
+            <svg
+              class="play-controls-icon"
+              v-if="volume === 0 || volume < 0"
+              viewBox="0 0 32 32"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19.45,4.11a1,1,0,0,0-1,.09L10.67,10H3a1,1,0,0,0-1,1V21a1,1,0,0,0,1,1h7.67l7.73,5.8A1,1,0,0,0,20,27V5A1,1,0,0,0,19.45,4.11Z"
+              />
+              <path
+                d="M27.41,16l2.29-2.29a1,1,0,0,0-1.41-1.41L26,14.59l-2.29-2.29a1,1,0,0,0-1.41,1.41L24.59,16l-2.29,2.29a1,1,0,1,0,1.41,1.41L26,17.41l2.29,2.29a1,1,0,0,0,1.41-1.41Z"
+              />
+            </svg>
+            <svg
+              v-else
+              class="play-controls-icon"
+              viewBox="0 0 32 32"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19.45,4.11a1,1,0,0,0-1,.09L10.67,10H3a1,1,0,0,0-1,1V21a1,1,0,0,0,1,1h7.67l7.73,5.8A1,1,0,0,0,20,27V5A1,1,0,0,0,19.45,4.11Z"
+              />
+              <path
+                d="M23,12a1,1,0,0,0-1,1v6a1,1,0,0,0,2,0V13A1,1,0,0,0,23,12Z"
+              />
+              <path
+                d="M26,10a1,1,0,0,0-1,1V21a1,1,0,0,0,2,0V11A1,1,0,0,0,26,10Z"
+              />
+              <path
+                d="M29,8a1,1,0,0,0-1,1V23a1,1,0,0,0,2,0V9A1,1,0,0,0,29,8Z"
+              />
+            </svg>
+          </div>
+          <div
+            ref="volume_progress_out"
+            class="volume-progress"
+            @click="volumeClick"
+            @mousedown="volumeDown"
+          >
+            <div ref="volume_progress" class="volume-progress-inner"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -121,10 +248,13 @@ const props = defineProps<{
   musicList?: MusicFileInfo[];
   changeMusic: (item: MusicFileInfo, index: number) => void;
   now: number;
+  changeShowTranslate: { isShow: boolean; changeShow: () => void };
 }>();
 import { ref, watch } from "vue";
 import { formatSeconds } from "../tools/TimeTransform";
 import { MusicFileInfo } from "../type/Music";
+import { ipcRenderer } from "electron";
+import { PlayMode } from "../type/Player";
 const current_time = ref<HTMLDivElement>();
 const time_progress = ref<HTMLDivElement>();
 const progress_out = ref<HTMLDivElement>();
@@ -134,6 +264,7 @@ const volume_progress = ref<HTMLDivElement>();
 const musicCurrentTime = ref<string>("0:00");
 const isPlaying = ref(false);
 const volume = ref(0);
+const playMode = ref<PlayMode>({ type: 0, label: "列表循环" });
 
 let lastTime = 0;
 
@@ -153,11 +284,10 @@ watch(
 //静音事件
 function mute() {
   if (!props.player) return;
-  if (props.player.volume === 0) props.player.volume = 0.3;
+  if (props.player.volume === 0) props.player.volume = 0.1;
   else {
     props.player.volume = 0.0;
   }
-  // volumeChange();
 }
 //更新时间
 function timeUpdate() {
@@ -169,6 +299,7 @@ function timeUpdate() {
   if (progress.value) progress.value.style.width = `${p * 100}%`; //更新进度条进度
   if (props.player.paused) isPlaying.value = false;
   else isPlaying.value = true;
+  doProgressUpdate(p); //更新任务栏进度条
 }
 //进度条拖动
 function progressMove(e: MouseEvent) {
@@ -218,9 +349,6 @@ function progressMouseLeave(e: MouseEvent) {
   progress_out.value.onmousemove = null;
   progressMouseUp(e);
   window.removeEventListener("mouseup", progressMouseLeave);
-  // if (!props.player) return;
-  // musicCurrentTime.value = formatSeconds(props.player.currentTime);
-  // timeUpdate();
 }
 //点击播放按钮
 function playClick() {
@@ -245,10 +373,53 @@ function preMusic(now: number) {
 }
 //下一首
 function nextMusic(now: number) {
+  switch (playMode.value.type) {
+    case 0:
+      listPlay(now);
+      break;
+    case 1:
+      circulatePlay(now);
+      break;
+    case 2:
+      randomPlay(now);
+      break;
+  }
+}
+//列表循环
+function listPlay(now: number) {
   if (!props.musicList) return;
   if (now === props.musicList.length - 1)
     props.changeMusic(props.musicList[0], 0);
   else props.changeMusic(props.musicList[now + 1], now + 1);
+}
+//单曲循环
+function circulatePlay(now: number) {
+  if (!props.musicList) return;
+  props.changeMusic(props.musicList[now], now);
+}
+//随机
+function randomPlay(now: number) {
+  if (!props.musicList) return;
+  const index = Math.floor(Math.random() * props.musicList.length);
+  if (index === now) {
+    randomPlay(now);
+    return;
+  }
+  props.changeMusic(props.musicList[index], index);
+}
+//切换下一首模式
+function switchPlayMode() {
+  switch (playMode.value.type) {
+    case 0:
+      playMode.value = { type: 1, label: "单曲循环" };
+      break;
+    case 1:
+      playMode.value = { type: 2, label: "随机" };
+      break;
+    case 2:
+      playMode.value = { type: 0, label: "列表循环" };
+      break;
+  }
 }
 /**音量进度条**/
 //点击音量轴
@@ -283,6 +454,19 @@ function volumeDown() {
     volume_progress_out.value.removeEventListener("mousemove", volumeMove);
   });
 }
+//音量轴鼠标滚轮运动
+function volumeMouseWheel(e: WheelEvent) {
+  if (!props.player) return;
+  const v = props.player.volume;
+  //向上滚动
+  if (e.deltaY < 0) {
+    if (v + 0.02 > 1) props.player.volume = 1;
+    else props.player.volume += 0.02;
+  } else {
+    if (v - 0.02 < 0) props.player.volume = 0;
+    else props.player.volume -= 0.02;
+  }
+}
 //音量改变事件
 function volumeChange() {
   if (!props.player || !volume_progress.value || !volume_progress_out.value)
@@ -301,6 +485,10 @@ function getVolume() {
   let volume_num = 0.3;
   if (volume_string) volume_num = Number(volume_string);
   return volume_num;
+}
+//状态栏进度条更新
+function doProgressUpdate(progress: number) {
+  ipcRenderer.send("progressUpdate", progress);
 }
 </script>
 
@@ -334,13 +522,13 @@ function getVolume() {
         &:hover {
           height: 15px;
         }
+        overflow: hidden;
       }
       &-in {
         height: 100%;
         width: 0;
         pointer-events: none;
         background-color: var(--bg_progress_active);
-        border-radius: 10px;
       }
     }
     .time {
@@ -348,6 +536,7 @@ function getVolume() {
       display: flex;
       padding: 0 15px 0 15px;
       box-sizing: border-box;
+      color: var(--bg_progress_active);
       .divide {
         margin: 0 5px 0 5px;
       }
@@ -361,10 +550,11 @@ function getVolume() {
 
     .play-controls {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       width: 200px;
       gap: 1.5rem;
+      margin-left: 1rem;
       &-button {
         cursor: pointer;
       }
@@ -383,27 +573,32 @@ function getVolume() {
         width: 2.5rem;
       }
     }
-    .controls-volume {
+    .extension-controls {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      .volume-progress {
-        width: 100px;
-        height: 6px;
-        background-color: var(--bg_progress);
-        border-radius: 8px;
-        overflow: hidden;
-        transition: height 0.3s ease;
-        cursor: pointer;
-        margin-right: 10px;
-      }
-      &:hover .volume-progress {
-        height: 10px;
-      }
-      .volume-progress-inner {
-        height: 100%;
-        background-color: var(--bg_progress_active);
+      gap: 1rem;
+      .controls-volume {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+        .volume-progress {
+          width: 100px;
+          height: 6px;
+          background-color: var(--bg_progress);
+          border-radius: 8px;
+          overflow: hidden;
+          transition: height 0.3s ease;
+          cursor: pointer;
+          margin-right: 1rem;
+        }
+        &:hover .volume-progress {
+          height: 10px;
+        }
+        .volume-progress-inner {
+          height: 100%;
+          background-color: var(--bg_progress_active);
+        }
       }
     }
   }

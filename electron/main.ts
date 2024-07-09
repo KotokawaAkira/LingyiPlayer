@@ -14,6 +14,8 @@ const createWindows = () => {
   const window = new BrowserWindow({
     width: 1400,
     height: 800,
+    minWidth: 875,
+    minHeight: 660,
     webPreferences: {
       contextIsolation: false, //是否隔离上下文
       nodeIntegration: true, //进程使用node api
@@ -55,4 +57,8 @@ ipcMain.on("doLoadMusic", async (_event, args: string) => {
   const res = await loadMusic(args);
   //传递两个数据，第一个为music buffer，第二个为原始路径
   window.webContents.send("loadMusic", { buffer: res, originPath: args });
+});
+//音乐进度条
+ipcMain.on("progressUpdate", (_event, progress: number) => {
+  window.setProgressBar(progress);
 });
