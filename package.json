@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
-    "music-metadata": "^8.3.0",
+    "music-metadata-browser": "^2.5.10",
     "vue": "^3.4.21"
   },
   "devDependencies": {

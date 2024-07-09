@@ -1,5 +1,5 @@
 import fs from "fs";
-import { parseBuffer } from "music-metadata";
+import { parseBuffer } from "music-metadata-browser";
 import { MusicFileInfo } from "../type/Music";
 
 //从本地加载音乐

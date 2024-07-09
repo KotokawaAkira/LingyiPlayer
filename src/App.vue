@@ -137,13 +137,11 @@ import { dialog } from "@electron/remote";
 import { ipcRenderer } from "electron";
 import { MusicBuffer, MusicFileInfo } from "./type/Music";
 import { getFilesAndFoldersInDir, parseMeta } from "./request/MusicRequest";
-import { IAudioMetadata } from "../node_modules/music-metadata/lib/type";
+import { IAudioMetadata } from "music-metadata-browser";
 import MusicController from "./components/MusicController.vue";
 import {
   colorComplement,
   colorfulImg,
-  colorReverse,
-  rgbToHex,
 } from "./tools/ThemeColor";
 import { nextTick } from "process";
 
