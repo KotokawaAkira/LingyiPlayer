@@ -42,10 +42,12 @@
         <div
           class="play-controls-button"
           @click="playClick"
-          :title="isPlaying ? '暂停' : '播放'"
+          :title="isPlaying ? '暂停(space)' : '播放(space)'"
         >
           <svg
-            :class="['play-pause', 'play-controls-icon']"
+            :class="`play-pause play-controls-icon ${
+              keydownActive ? 'play-controls-icon-active' : null
+            }`"
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -193,7 +195,7 @@
             />
           </svg>
         </div>
-        <div class="controls-volume" @wheel="volumeMouseWheel" title="音量">
+        <div class="controls-volume" @wheel="volumeMouseWheel" title="音量(↑↓)">
           <div style="height: 2rem" @click="mute">
             <svg
               class="play-controls-icon"
@@ -265,6 +267,7 @@ const musicCurrentTime = ref<string>("0:00");
 const isPlaying = ref(false);
 const volume = ref(0);
 const playMode = ref<PlayMode>({ type: 0, label: "列表循环" });
+const keydownActive = ref(false);
 
 let lastTime = 0;
 
@@ -304,6 +307,9 @@ function initialize() {
   ipcRenderer.on("doNext", () => {
     nextMusic(props.now);
   });
+  //设置键盘事件
+  window.onkeydown = keyboardDown;
+  window.onkeyup = keyboardUp;
 }
 //静音事件
 function mute() {
@@ -480,14 +486,23 @@ function volumeDown() {
 //音量轴鼠标滚轮运动
 function volumeMouseWheel(e: WheelEvent) {
   if (!props.player) return;
-  const v = props.player.volume;
   //向上滚动
-  if (e.deltaY < 0) {
-    if (v + 0.02 > 1) props.player.volume = 1;
-    else props.player.volume += 0.02;
-  } else {
-    if (v - 0.02 < 0) props.player.volume = 0;
-    else props.player.volume -= 0.02;
+  if (e.deltaY < 0) setVolume(0, 0.02);
+  else setVolume(1, 0.02);
+}
+//设置音量 mode: 0加/1减
+function setVolume(mode: 0 | 1, step: number) {
+  if (!props.player) return;
+  const v = props.player.volume;
+  switch (mode) {
+    case 0:
+      if (v + step > 1) props.player.volume = 1;
+      else props.player.volume += step;
+      break;
+    case 1:
+      if (v - step < 0) props.player.volume = 0;
+      else props.player.volume -= step;
+      break;
   }
 }
 //音量改变事件
@@ -528,6 +543,38 @@ function getPlayMode() {
   const play_mode_string = localStorage.getItem("play-mode");
   if (!play_mode_string) return;
   return JSON.parse(play_mode_string) as PlayMode;
+}
+//键盘按下事件
+function keyboardDown(e: KeyboardEvent) {
+  if (!props.player) return;
+  switch (e.key) {
+    case "ArrowUp":
+      setVolume(0, 0.05);
+      break;
+    case "ArrowDown":
+      setVolume(1, 0.05);
+      break;
+    case "ArrowRight":
+      props.player.currentTime += 5;
+      break;
+    case "ArrowLeft":
+      props.player.currentTime -= 5;
+      break;
+    case " ":
+      keydownActive.value = true;
+      break;
+  }
+}
+//键盘抬起
+function keyboardUp(e: KeyboardEvent) {
+  if (!props.player) return;
+  switch (e.key) {
+    case " ":
+      keydownActive.value = false;
+      if (isPlaying.value) props.player.pause();
+      else props.player.play();
+      break;
+  }
 }
 </script>
 
@@ -602,6 +649,9 @@ function getPlayMode() {
         width: 2rem;
         transition: all 0.3s ease;
         cursor: pointer;
+        &-active {
+          transform: scale(0.85);
+        }
         &:active {
           transform: scale(0.85);
         }

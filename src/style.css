@@ -14,15 +14,15 @@
 
   font-size: 12px;
   --bg: #7c7c7c;
-  --bg_control:#242424;
+  --bg_control: #242424;
   --font_color: #e3e3e3;
   --lyrics_color: #242424;
   --lyrics_color_active: #fff;
   --color_tjx: #e3b4bf;
   --bg_progress: #242424;
   --bg_progress_active: #d4d4d4;
-  --side_window_bg:#42424286;
-  --bg_lyrics_hover:#64646483;
+  --side_window_bg: #424242;
+  --bg_lyrics_hover: #64646483;
 }
 
 a {
@@ -41,7 +41,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--bg);
-  transition: background-color .5s ease;
+  transition: background-color 0.5s ease;
 }
 img {
   display: block;
@@ -51,7 +51,8 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-ul,li{
+ul,
+li {
   margin: 0;
   padding: 0;
 }
@@ -77,7 +78,9 @@ button:focus-visible {
 .card {
   padding: 2em;
 }
-
+svg:hover {
+  filter: drop-shadow(1px 1px 2px var(--bg_progress_active));
+}
 #app {
   margin: 0 auto;
   width: 100%;
@@ -90,14 +93,14 @@ button:focus-visible {
   :root {
     color: #213547;
     --bg: #e3e3e3;
-    --bg_control:#fff;
+    --bg_control: #fff;
     --font_color: rgb(#0b0b0b);
     --bg_progress: #e0e0e0;
     --bg_progress_active: #0b0b0b;
     --lyrics_color: #fff;
     --lyrics_color_active: #242424;
-    --side_window_bg:#e3e3e385;
-    --bg_lyrics_hover:#dcdcdc88;
+    --side_window_bg: #e3e3e3;
+    --bg_lyrics_hover: #dcdcdc88;
   }
   a:hover {
     color: #747bff;
