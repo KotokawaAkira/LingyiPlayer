@@ -149,6 +149,7 @@ function lyricScroll(i: number) {
       &-active {
         color: var(--lyrics_color_active);
         transform: scale(1);
+        font-weight: bold;
       }
       &-translation {
         font-size: 1rem;

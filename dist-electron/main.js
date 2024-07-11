@@ -14170,7 +14170,8 @@ const createWindows = () => {
       nodeIntegration: true,
       //进程使用node api
       preload: path.join(__dirname, "./preload")
-    }
+    },
+    icon: path.join(path.dirname(__dirname), "/src/assets/music_folder.png")
   });
   if (process.env.NODE_ENV !== "development") {
     window2.loadFile(path.join(__dirname, "index.html"));
@@ -14184,6 +14185,7 @@ const createWindows = () => {
 };
 require$$3.app.whenReady().then(() => {
   window$1 = createWindows();
+  window$1.setMenu(null);
   require$$3.app.on("activate", () => {
     if (require$$3.BrowserWindow.getAllWindows.length === 0) window$1 = createWindows();
   });

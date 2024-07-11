@@ -106,7 +106,7 @@
               <div
                 title="删除"
                 v-if="showEdit && musicList && musicList.length > 0"
-                @click="removeFromMusicList"
+                @click="removeButtonClick"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -160,9 +160,7 @@
                   :class="`music-list-container-item-div-span ${
                     now === index ? 'music-list-container-item-active' : null
                   } ${
-                    showEdit
-                      ? null
-                      : 'music-list-container-item-div-span-hover'
+                    showEdit ? null : 'music-list-container-item-div-span-hover'
                   }`"
                   >{{ item.name }}</span
                 >
@@ -496,6 +494,22 @@ function resetIndex(oldIndex: number, newIndex: number) {
   temp.splice(newIndex, 0, temp.splice(oldIndex, 1)[0]);
   return temp;
 }
+//点击删除
+function removeButtonClick() {
+  if (checkList.value.some((item) => item === true))
+    dialog
+      .showMessageBox({
+        title: "提示",
+        message: "确定删除吗？",
+        type: "warning",
+        buttons: ["确定", "取消"],
+        cancelId: 1,
+        defaultId: 1,
+      })
+      .then((res) => {
+        if (res.response === 0) removeFromMusicList();
+      });
+}
 </script>
 
 <style lang="scss" scoped>
@@ -712,7 +726,7 @@ main {
             width: 100%;
             transition: all 0.3s ease;
             display: inline-block;
-            transition: color .3s ease;
+            transition: color 0.3s ease;
             &-hover:hover {
               color: var(--lyrics_color);
             }

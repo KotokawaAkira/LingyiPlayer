@@ -21,6 +21,7 @@ const createWindows = () => {
       nodeIntegration: true, //进程使用node api
       preload: path.join(__dirname, "./preload"),
     },
+    icon:path.join(path.dirname(__dirname),"/src/assets/music_folder.png")
   });
   //如果打包 渲染index.html
   if (process.env.NODE_ENV !== "development") {
@@ -39,6 +40,7 @@ const createWindows = () => {
 //当app就绪 创建窗口
 app.whenReady().then(() => {
   window = createWindows();
+  window.setMenu(null);
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows.length === 0) window = createWindows();
   });
@@ -69,10 +71,6 @@ ipcMain.on(
     _event,
     args: {
       isPlaying: boolean;
-      now: number;
-      pre: (now: number) => void;
-      playClick: () => void;
-      next: (now: number) => void;
     }
   ) => {
     setTumbarButtons(args);
