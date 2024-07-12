@@ -195,7 +195,7 @@ import { MusicBuffer, MusicFileInfo } from "./type/Music";
 import { getFilesAndFoldersInDir, parseMeta } from "./request/MusicRequest";
 import { IAudioMetadata } from "music-metadata-browser";
 import MusicController from "./components/MusicController.vue";
-import { colorComplement, colorfulImg } from "./tools/ThemeColor";
+import { colorComplement, colorfulImg, get3Colors } from "./tools/ThemeColor";
 import Sortable from "sortablejs";
 
 const lyrics = ref<Lyric[]>();
@@ -247,30 +247,47 @@ ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
   const meta = await parseMeta(args.buffer);
   musicMeta.value = meta;
   if (meta.format.duration) musicDuration.value = meta.format.duration;
-  console.log(meta);
+  // console.log(meta);
   //设置背景主题色
   nextTick(() => {
     if (pictrue.value) {
       const rgb = colorfulImg(pictrue.value);
       const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
-      document.body.style.setProperty(
-        "--bg",
-        `rgba(${rgb.r},${rgb.g},${rgb.b},0.7)`
-      );
       document.body.style.setProperty("--lyrics_color", color_complement);
+      const color_lsit = get3Colors(pictrue.value);
+      document.body.style.setProperty(
+        "--bg_gradient0",
+        `rgba(${color_lsit[0][0]},${color_lsit[0][1]},${color_lsit[0][2]},0.7)`
+      );
+      document.body.style.setProperty(
+        "--bg_gradient1",
+        `rgba(${color_lsit[1][0]},${color_lsit[1][1]},${color_lsit[1][2]},0.7)`
+      );
+      document.body.style.setProperty(
+        "--bg_gradient2",
+        `rgba(${color_lsit[2][0]},${color_lsit[2][1]},${color_lsit[2][2]},0.7)`
+      );
     }
   });
 });
-////监听主进程加载歌词
-ipcRenderer.on("loadLyric", (_event, args: string) => {
-  lyrics.value = executeLyrics(args);
+//监听主进程加载歌词
+ipcRenderer.on("loadLyric", (_event, args: string | undefined) => {
+  if (args) lyrics.value = executeLyrics(args);
+  else lyrics.value = undefined;
 });
-
+//监听主进程通过该应用打开文件
+ipcRenderer.on("open-file", (_event, args: MusicFileInfo[]) => {
+  if (args.length === 0) return;
+  loadFile(args);
+});
 function initialize() {
   showSideWindow.value = getShowMusicListFromStorage();
   musicList.value = getMusicListFromStorage();
   nextTick(playerCoverinitiate);
   doSort();
+  //拖入文件
+  window.ondragover = (e) => e.preventDefault();
+  window.ondrop = dropFile;
 }
 //初始化播放界面
 function playerCoverinitiate() {
@@ -329,6 +346,7 @@ function openFolder() {
       properties: ["openDirectory"],
     })
     .then((res) => {
+      if (!(res.filePaths.length > 0)) return;
       const result = getFilesAndFoldersInDir(res.filePaths[0], []);
       addToPlayList(result);
     });
@@ -413,7 +431,9 @@ function clearAll() {
   musicDuration.value = 0;
   musicFileName.value = "";
   lyrics.value = undefined;
-  document.body.style.removeProperty("--bg");
+  document.body.style.removeProperty("--bg_gradient1");
+  document.body.style.removeProperty("--bg_gradient1");
+  document.body.style.removeProperty("--bg_gradient1");
 }
 //全选
 function selectAll(val?: boolean) {
@@ -510,6 +530,40 @@ function removeButtonClick() {
         if (res.response === 0) removeFromMusicList();
       });
 }
+//拖入文件
+function dropFile(e: DragEvent) {
+  e.preventDefault();
+  if (e.dataTransfer === null || e.dataTransfer.files.length === 0) return;
+  const files = e.dataTransfer.files;
+  //将文件格式更改为MusicFileInfo[];
+  const newList: MusicFileInfo[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const type = files[i].name.slice(files[i].name.lastIndexOf(".") + 1);
+    if (type === "mp3" || type === "flac" || type === "wav") {
+      newList.push({
+        name: files[i].name,
+        originPath: files[i].path,
+        type: files[i].type,
+      });
+    }
+  }
+  loadFile(newList);
+}
+function loadFile(list: MusicFileInfo[]) {
+  if (!musicList.value) {
+    musicList.value = list;
+  }
+  //添加进播放列表
+  addToPlayList(list);
+  //若拖入一个文件则自动播放
+  if (list.length === 1) {
+    const list_offset = musicList.value.findIndex((el) => {
+      return el.originPath === list[0].originPath;
+    });
+    if (list_offset !== -1)
+      changeMusic(musicList.value[list_offset], list_offset);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -551,9 +605,6 @@ main {
     text-align: center;
     font-size: 1.5rem;
     max-width: 500px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
     color: var(--lyrics_color);
   }
 }

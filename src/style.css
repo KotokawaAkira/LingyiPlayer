@@ -61,8 +61,17 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--bg);
-  transition: background-color 0.5s ease;
+  background: linear-gradient(
+    -135deg,
+    var(--bg_gradient1),
+    var(--bg_gradient2),
+    var(--bg_gradient0)
+  );
+  /* background-color: var(--bg_gradient1); */
+  background-size: 600% 600%;
+  transition: background 0.5s ease;
+  animation: gradientBG1 30s ease infinite alternate, gradientBG2 30s ease 30s infinite alternate,
+    gradientBG3 30s ease 60s infinite alternate;
 }
 img {
   display: block;
@@ -109,7 +118,39 @@ svg:hover {
   box-sizing: border-box;
   color: var(--font_color);
 }
-
+@keyframes gradientBG1 {
+  0% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+@keyframes gradientBG2 {
+  0% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 50% 0%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+@keyframes gradientBG3 {
+  0% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

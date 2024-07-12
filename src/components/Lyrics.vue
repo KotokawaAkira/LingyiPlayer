@@ -20,6 +20,9 @@
         >
           {{ lyric.translation }}
         </div>
+        <div class="lyrics-time">
+          {{ lyric.time ? formatSeconds(lyric.time) : "" }}
+        </div>
       </div>
       <div v-if="props.lyrics" class="lyrics-placeholder-btm"></div>
       <div v-else class="no-lyrics">没有歌词 / No lyrics</div>
@@ -29,6 +32,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from "vue";
 import Lyric from "../type/Lyric";
+import { formatSeconds } from "../tools/TimeTransform";
 
 const props = defineProps<{
   lyrics?: Lyric[];
@@ -141,10 +145,15 @@ function lyricScroll(i: number) {
       transform-origin: 0 50%;
       transform: scale(0.85);
       font-size: 1.5rem;
-      padding: 0 6px;
-      border-radius: 6px;
+      padding: 0 2rem 0 0.5rem;
+      border-radius: 0.5rem;
+      position: relative;
+      box-sizing: border-box;
       &:hover {
         background-color: var(--bg_lyrics_hover);
+      }
+      &:hover .lyrics-time {
+        opacity: 1;
       }
       &-active {
         color: var(--lyrics_color_active);
@@ -153,6 +162,15 @@ function lyricScroll(i: number) {
       }
       &-translation {
         font-size: 1rem;
+      }
+      &-time {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 1rem;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
       &-placeholder {
         width: 100%;

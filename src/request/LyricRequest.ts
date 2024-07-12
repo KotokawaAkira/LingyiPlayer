@@ -9,9 +9,9 @@ async function findLyric(musicName: string) {
 }
 //从本地加载歌词
 async function loadLyric(path: string) {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string|undefined>((resolve) => {
     fs.readFile(path, (err, data) => {
-      if (err) reject(undefined);
+      if (err) resolve(undefined);
       else resolve(data.toString());
     });
   });

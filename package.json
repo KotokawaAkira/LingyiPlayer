@@ -1,15 +1,55 @@
 {
   "name": "musicplayervue",
+  "author":{
+    "name":"Lingyi",
+    "email": "accelert123@gmail.com"
+  },
   "private": true,
   "version": "0.0.1",
-  "main": "./dist-electron/main.js",
+  "main": "dist-electron/main.js",
+  "fileAssociations": [
+    {
+      "ext": [
+        "flac",
+        "mp3",
+        "wav"
+      ]
+    }
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
+    "electron-build":"electron-builder",
     "preview": "vite preview"
+  },
+  "build": {
+    "appId": "com.lingyi.player",
+    "productName": "Lingyi Player",
+    "directories":{
+      "output":"release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json",
+      "src/assets/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon":"src/assets/musicfolder.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon":"src/assets/musicfolder.ico"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "icon":"src/assets/musicfolder.png"
+    }
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
+    "ml-kmeans": "^6.0.0",
     "music-metadata-browser": "^2.5.10",
     "sortablejs": "^1.15.2",
     "vue": "^3.4.21"
@@ -19,6 +59,7 @@
     "@types/sortablejs": "^1.15.8",
     "@vitejs/plugin-vue": "^5.0.4",
     "electron": "^31.1.0",
+    "electron-builder": "^24.13.3",
     "sass": "^1.77.6",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
