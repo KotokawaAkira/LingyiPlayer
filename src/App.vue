@@ -201,6 +201,7 @@ import { IAudioMetadata } from "music-metadata-browser";
 import MusicController from "./components/MusicController.vue";
 import { colorComplement, colorfulImg, get3Colors } from "./tools/ThemeColor";
 import Sortable from "sortablejs";
+import path from "path";
 
 const lyrics = ref<Lyric[]>();
 const player = ref<HTMLAudioElement>();
@@ -217,8 +218,6 @@ const checkList = ref<boolean[]>([]);
 const showEdit = ref(false);
 const music_list_container = ref<HTMLUListElement>();
 const sort_obj = ref<Sortable>();
-
-const setUrls = new Set<string>();
 
 //监听音乐列表的变化
 watch(
@@ -245,11 +244,8 @@ watch(showEdit, (val) => {
 });
 
 //监听url变化 手动释放内存
-watch(musicSrcURL, (newVal) => {
-  setUrls.forEach((item) => {
-    URL.revokeObjectURL(item);
-  });
-  if (newVal) setUrls.add(newVal);
+watch(musicSrcURL, (_newVal, oldVal) => {
+  if (oldVal) URL.revokeObjectURL(oldVal);
 });
 
 initialize();
@@ -357,7 +353,7 @@ function executeLyrics(lyricBody: string) {
 function openFolder() {
   dialog
     .showOpenDialog({
-      title: "选择文件",
+      title: "选择文件夹",
       properties: ["openDirectory"],
     })
     .then((res) => {
@@ -377,13 +373,12 @@ function openFiles() {
     .then((res) => {
       const list: MusicFileInfo[] = [];
       for (let i = 0; i < res.filePaths.length; i++) {
-        const lastPoint = res.filePaths[i].lastIndexOf(".");
-        const lastSplit = res.filePaths[i].lastIndexOf("/");
-        const type = res.filePaths[i].slice(lastPoint + 1);
-        if (type === "mp3" || type === "flac" || type === "wav") {
+        const fileName = path.basename(res.filePaths[i]);
+        const type = path.extname(res.filePaths[i]);
+        if (type === ".mp3" || type === ".flac" || type === ".wav") {
           list.push({
             type,
-            name: res.filePaths[i].slice(lastSplit + 1),
+            name: fileName,
             originPath: res.filePaths[i],
           });
         }
@@ -446,6 +441,7 @@ function clearAll() {
   now.value = 0;
   musicDuration.value = 0;
   musicFileName.value = "";
+  musicMeta.value = undefined;
   lyrics.value = undefined;
   document.body.style.removeProperty("--bg_gradient1");
   document.body.style.removeProperty("--bg_gradient1");
