@@ -19,8 +19,12 @@
               : musicFileName
           "
         >
-          <span v-if="musicMeta?.common.artist && musicMeta?.common.title">
-            {{ musicMeta.common.artist }} - {{ musicMeta.common.title }}
+          <span v-if="musicMeta?.common.artists && musicMeta?.common.title">
+            <span v-for="item in musicMeta?.common.artists"
+              >{{ item }} &nbsp;</span
+            >
+            -
+            <span>{{ musicMeta?.common.title }}</span>
           </span>
           <span v-else>
             {{ musicFileName }}
@@ -214,6 +218,8 @@ const showEdit = ref(false);
 const music_list_container = ref<HTMLUListElement>();
 const sort_obj = ref<Sortable>();
 
+const setUrls = new Set<string>();
+
 //监听音乐列表的变化
 watch(
   musicList,
@@ -238,10 +244,19 @@ watch(showEdit, (val) => {
   if (sort_obj.value) sort_obj.value.options.sort = val;
 });
 
+//监听url变化 手动释放内存
+watch(musicSrcURL, (newVal) => {
+  setUrls.forEach((item) => {
+    URL.revokeObjectURL(item);
+  });
+  if (newVal) setUrls.add(newVal);
+});
+
 initialize();
 
 //监听主进程加载音乐
 ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
+  if (args === null) return;
   musicSrcURL.value = URL.createObjectURL(new Blob([args.buffer]));
   getLyric(args.originPath);
   const meta = await parseMeta(args.buffer);
@@ -392,6 +407,7 @@ function getLyric(musicPath: string) {
 }
 //更改音乐
 function changeMusic(item: MusicFileInfo | null, index: number) {
+  if (index === now.value) return;
   //传递空值
   if (!item) {
     musicMeta.value = undefined;

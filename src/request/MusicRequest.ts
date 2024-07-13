@@ -5,7 +5,7 @@ import { MusicFileInfo } from "../type/Music";
 //从本地加载音乐
 async function loadMusic(path: string) {
   return new Promise<Buffer>((resolve, reject) => {
-    fs.readFile(path, (err, data) => {
+    fs.readFile(path, (err, data: Buffer) => {
       if (err) reject(err);
       else resolve(data);
     });
@@ -34,8 +34,8 @@ function getFilesAndFoldersInDir(path: string, list: MusicFileInfo[]) {
   return list;
 }
 //解析音乐文件原数据
-async function parseMeta(buff:Buffer){
+async function parseMeta(buff: Buffer) {
   const meta = await parseBuffer(buff);
   return meta;
 }
-export { loadMusic, getFilesAndFoldersInDir,parseMeta };
+export { loadMusic, getFilesAndFoldersInDir, parseMeta };

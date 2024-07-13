@@ -1,11 +1,11 @@
 {
   "name": "musicplayervue",
-  "author":{
-    "name":"Lingyi",
+  "author": {
+    "name": "Lingyi",
     "email": "accelert123@gmail.com"
   },
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist-electron/main.js",
   "fileAssociations": [
     {
@@ -17,16 +17,17 @@
     }
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite ",
     "build": "vue-tsc && vite build",
-    "electron-build":"electron-builder",
+    "electron": "electron --js-flags\"--expose-gc\" .",
+    "electron-build": "electron-builder",
     "preview": "vite preview"
   },
   "build": {
     "appId": "com.lingyi.player",
     "productName": "Lingyi Player",
-    "directories":{
-      "output":"release"
+    "directories": {
+      "output": "release"
     },
     "files": [
       "dist/**/*",
@@ -36,15 +37,24 @@
     ],
     "mac": {
       "target": "dmg",
-      "icon":"src/assets/musicfolder.icns"
+      "icon": "src/assets/music-note.icns"
     },
     "win": {
       "target": "nsis",
-      "icon":"src/assets/musicfolder.ico"
+      "icon": "src/assets/music-note.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "uninstallDisplayName": "Uninstall Lingyi Player",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     },
     "linux": {
-      "target": ["AppImage"],
-      "icon":"src/assets/musicfolder.png"
+      "target": [
+        "AppImage"
+      ],
+      "icon": "src/assets/music-note.png"
     }
   },
   "dependencies": {
