@@ -161,13 +161,13 @@ function lyricScroll(i: number) {
         font-weight: bold;
       }
       &-translation {
-        font-size: 1rem;
+        font-size: 1.3rem;
       }
       &-time {
         position: absolute;
         bottom: 0;
         right: 0;
-        font-size: 1rem;
+        font-size: 1.3rem;
         transform: scale(0.8);
         opacity: 0;
         transition: opacity 0.3s ease;
