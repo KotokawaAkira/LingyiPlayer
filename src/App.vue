@@ -25,8 +25,11 @@
           "
         >
           <span v-if="musicMeta?.common.artists && musicMeta?.common.title">
-            <span v-for="item in musicMeta?.common.artists"
-              >{{ item }} &nbsp;</span
+            <span v-for="(item, i) in musicMeta?.common.artists"
+              >{{ item }}
+              <span v-if="i !== musicMeta?.common.artists.length - 1"
+                >&nbsp;</span
+              ></span
             >
             -
             <span>{{ musicMeta?.common.title }}</span>
@@ -245,7 +248,7 @@ watch(
 );
 
 watch(showSideWindow, (val) => {
-  if (!val) showEdit.value = false;//侧边栏收起关闭编辑状态
+  if (!val) showEdit.value = false; //侧边栏收起关闭编辑状态
   saveShowMusicListToStorage();
 });
 
