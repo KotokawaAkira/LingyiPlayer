@@ -309,7 +309,7 @@ function initialize() {
   window.ondragover = (e) => e.preventDefault();
   window.ondrop = dropFile;
 
-  setTimeout(()=>isLoading.value = false,1000);
+  setTimeout(() => (isLoading.value = false), 1000);
 }
 //初始化播放界面
 function playerCoverinitiate() {
@@ -552,6 +552,7 @@ function removeButtonClick() {
         defaultId: 1,
       })
       .then((res) => {
+        showEdit.value = false;
         if (res.response === 0) removeFromMusicList();
       });
 }

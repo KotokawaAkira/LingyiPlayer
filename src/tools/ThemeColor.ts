@@ -28,31 +28,6 @@ function colorfulImg(img: HTMLImageElement) {
   rgb.g = ~~(rgb.g / count);
   rgb.b = ~~(rgb.b / count);
   return rgb;
-  // const pixels = data;
-  // const pixelArray: number[][] = [];
-
-  // // 将像素数据转换为RGB数组
-  // for (let i = 0; i < pixels.length; i += 4) {
-  //   const r = pixels[i];
-  //   const g = pixels[i + 1];
-  //   const b = pixels[i + 2];
-  //   // 只保留不透明的像素
-  //   if (pixels[i + 3] > 0) {
-  //     pixelArray.push([r, g, b]);
-  //   }
-  // }
-
-  // // 使用 k-means 聚类算法提取三种主要颜色
-  // const numberOfClusters = 3;
-  // const result = kmeans(pixelArray, numberOfClusters, {
-  //   maxIterations: 10,
-  //   tolerance: 1e-6,
-  // });
-
-  // for(let i=result.centroids.length-1;i>=0;i--){
-  //   colorList.push(result.centroids[i]);
-  // }
-  // return colorList;
 }
 function get3Colors(img: HTMLImageElement) {
   let canvas = document.createElement("canvas"),
@@ -103,4 +78,41 @@ function colorReverse(oldColor: any) {
 function colorComplement(r: number, g: number, b: number) {
   return `rgb(${255 - r},${255 - g},${255 - b})`;
 }
-export { colorfulImg, rgbToHex, colorReverse, colorComplement, get3Colors };
+// 定义颜色类型
+type RGB = {
+  r: number;
+  g: number;
+  b: number;
+};
+
+// 计算平均颜色函数
+function calculateAverageColor(colors: RGB[]): RGB {
+  // 初始化红、绿、蓝通道的总和
+  let totalR = 0;
+  let totalG = 0;
+  let totalB = 0;
+
+  // 遍历每个颜色，将每个通道的值相加
+  for (const color of colors) {
+    totalR += color.r;
+    totalG += color.g;
+    totalB += color.b;
+  }
+
+  // 计算每个通道的平均值
+  const averageR = Math.round(totalR / colors.length);
+  const averageG = Math.round(totalG / colors.length);
+  const averageB = Math.round(totalB / colors.length);
+
+  // 返回平均颜色
+  return { r: averageR, g: averageG, b: averageB };
+}
+
+export {
+  colorfulImg,
+  rgbToHex,
+  colorReverse,
+  colorComplement,
+  get3Colors,
+  calculateAverageColor,
+};
