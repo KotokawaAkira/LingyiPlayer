@@ -244,7 +244,8 @@ watch(
   { deep: true }
 );
 
-watch(showSideWindow, () => {
+watch(showSideWindow, (val) => {
+  if (!val) showEdit.value = false;//侧边栏收起关闭编辑状态
   saveShowMusicListToStorage();
 });
 
@@ -541,7 +542,12 @@ function resetIndex(oldIndex: number, newIndex: number) {
 }
 //点击删除
 function removeButtonClick() {
-  if (checkList.value.some((item) => item === true))
+  let i = 0;
+  const hasTrue = checkList.value.some((item, index) => {
+    i = index;
+    return item === true;
+  });
+  if (hasTrue)
     dialog
       .showMessageBox({
         title: "提示",
@@ -552,7 +558,8 @@ function removeButtonClick() {
         defaultId: 1,
       })
       .then((res) => {
-        showEdit.value = false;
+        if (now.value === i && musicList.value && musicList.value.length > 0)
+          changeMusic(musicList.value[0], 0);
         if (res.response === 0) removeFromMusicList();
       });
 }
@@ -734,6 +741,7 @@ main {
         &-dangerous {
           &:hover {
             fill: #fa5353;
+            filter: drop-shadow(0px 0px 5px #fa5353);
           }
         }
       }
