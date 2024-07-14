@@ -34,7 +34,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   font-size: 12px;
-  --bg: #7c7c7c;
+  --bg: #474747;
   --bg_control: #242424;
   --font_color: #e3e3e3;
   --lyrics_color: #242424;
@@ -154,7 +154,7 @@ svg:hover {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    --bg: #e3e3e3;
+    --bg: #e9e9e9;
     --bg_control: #fff;
     --font_color: rgb(#0b0b0b);
     --bg_progress: #e0e0e0;

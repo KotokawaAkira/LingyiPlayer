@@ -1,5 +1,10 @@
 <template>
   <main>
+    <transition name="fade">
+      <div class="loading-cover" v-if="isLoading">
+        <img :src="icon" alt="" />
+      </div>
+    </transition>
     <div class="info-section">
       <div class="meta-container">
         <div class="meta-container-main">
@@ -203,6 +208,8 @@ import { colorComplement, colorfulImg, get3Colors } from "./tools/ThemeColor";
 import Sortable from "sortablejs";
 import path from "path";
 
+import icon from "./assets/music-note.png";
+
 const lyrics = ref<Lyric[]>();
 const player = ref<HTMLAudioElement>();
 const musicFileName = ref<string>("");
@@ -218,12 +225,14 @@ const checkList = ref<boolean[]>([]);
 const showEdit = ref(false);
 const music_list_container = ref<HTMLUListElement>();
 const sort_obj = ref<Sortable>();
+const isLoading = ref(true);
 
 //监听音乐列表的变化
 watch(
   musicList,
   (val) => {
     if (!val) return;
+    if (val.length === 0) clearAll();
     playerCoverinitiate();
     saveMusicListInStorage(val);
     //添加多选框
@@ -299,6 +308,8 @@ function initialize() {
   //拖入文件
   window.ondragover = (e) => e.preventDefault();
   window.ondrop = dropFile;
+
+  setTimeout(()=>isLoading.value = false,1000);
 }
 //初始化播放界面
 function playerCoverinitiate() {
@@ -313,7 +324,7 @@ function playerCoverinitiate() {
       }
     }
     now.value = index;
-    if (player.value?.paused) {
+    if (!showEdit.value) {
       ipcRenderer.send("doLoadMusic", musicList.value[index].originPath);
       musicFileName.value = musicList.value[index].name;
     }
@@ -388,6 +399,7 @@ function openFiles() {
 }
 //添加到播放列表
 function addToPlayList(list: MusicFileInfo[]) {
+  showEdit.value = false;
   list.forEach((item) => {
     if (!musicList.value) musicList.value = list;
     if (!musicList.value.find((el) => el.originPath === item.originPath))
@@ -446,6 +458,7 @@ function clearAll() {
   document.body.style.removeProperty("--bg_gradient1");
   document.body.style.removeProperty("--bg_gradient1");
   document.body.style.removeProperty("--bg_gradient1");
+  musicSrcURL.value = undefined;
 }
 //全选
 function selectAll(val?: boolean) {
@@ -572,6 +585,7 @@ function loadFile(list: MusicFileInfo[]) {
     const list_offset = musicList.value.findIndex((el) => {
       return el.originPath === list[0].originPath;
     });
+
     if (list_offset !== -1)
       changeMusic(musicList.value[list_offset], list_offset);
   }
@@ -594,6 +608,23 @@ main {
     justify-content: center;
     width: 80%;
     height: 85%;
+  }
+}
+.loading-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--bg);
+  z-index: 99;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    min-width: 2rem;
+    width: 30vw;
+    aspect-ratio: 1;
   }
 }
 .meta-container {
@@ -823,5 +854,17 @@ main {
   100% {
     transform: translate(0);
   }
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
 }
 </style>
