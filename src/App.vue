@@ -221,7 +221,7 @@ const musicList = ref<MusicFileInfo[]>();
 const musicMeta = ref<IAudioMetadata>();
 const pictrue = ref<HTMLImageElement>();
 const musicDuration = ref(0);
-const now = ref(0);
+const now = ref(-1);
 const showSideWindow = ref(false);
 const showTranslation = ref(true);
 const checkList = ref<boolean[]>([]);
@@ -307,7 +307,7 @@ ipcRenderer.on("open-file", (_event, args: MusicFileInfo[]) => {
 function initialize() {
   showSideWindow.value = getShowMusicListFromStorage();
   musicList.value = getMusicListFromStorage();
-  nextTick(playerCoverinitiate);
+  // nextTick(playerCoverinitiate);
   doSort();
   //拖入文件
   window.ondragover = (e) => e.preventDefault();
@@ -327,9 +327,9 @@ function playerCoverinitiate() {
         break;
       }
     }
-    now.value = index;
     if (!showEdit.value) {
-      ipcRenderer.send("doLoadMusic", musicList.value[index].originPath);
+      changeMusic(musicList.value[index], index);
+      now.value = index;
       musicFileName.value = musicList.value[index].name;
     }
   }
@@ -418,7 +418,7 @@ function getLyric(musicPath: string) {
 }
 //更改音乐
 function changeMusic(item: MusicFileInfo | null, index: number) {
-  if (index === now.value) return;
+  if (index === now.value || index === -1) return;
   //传递空值
   if (!item) {
     musicMeta.value = undefined;
@@ -429,7 +429,7 @@ function changeMusic(item: MusicFileInfo | null, index: number) {
   now.value = index;
   musicFileName.value = item.name;
   ipcRenderer.send("doLoadMusic", item.originPath);
-  player.value!.oncanplay = () => player.value?.play();
+  if (player.value) player.value.oncanplay = () => player.value?.play();
   //设置当前正在播放状态 用于保存上次播放记录
   for (let i = 0; i < musicList.value!.length; i++) {
     if (i === index) musicList.value![i].active = true;
@@ -454,7 +454,7 @@ function changeShowTranslate() {
 //清空所有数据
 function clearAll() {
   changeMusic(null, 0);
-  now.value = 0;
+  now.value = -1;
   musicDuration.value = 0;
   musicFileName.value = "";
   musicMeta.value = undefined;
