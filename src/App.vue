@@ -329,9 +329,9 @@ function playerCoverinitiate() {
     }
     if (!showEdit.value) {
       changeMusic(musicList.value[index], index);
-      now.value = index;
       musicFileName.value = musicList.value[index].name;
     }
+    now.value = index;
   }
 }
 //处理歌词
