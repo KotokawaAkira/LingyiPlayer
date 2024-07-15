@@ -46,10 +46,13 @@
         <Lyrics :lyrics :player :showTranslation />
       </div>
       <div
-        :title="showSideWindow ? '隐藏播放列表' : '显示播放列表'"
         :class="`side-window ${showSideWindow ? 'side-window-active' : 'null'}`"
       >
-        <div class="show-button" @click="showSideWindow = !showSideWindow">
+        <div
+          :title="showSideWindow ? '隐藏播放列表' : '显示播放列表'"
+          class="show-button"
+          @click="showSideWindow = !showSideWindow"
+        >
           <svg
             :class="`show-button-icon ${
               showSideWindow ? 'show-button-icon-active' : 'null'
