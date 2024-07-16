@@ -42,7 +42,7 @@ async function parseMeta(buff: Buffer) {
 //读取图片文件
 async function loadCover(musicPath: string) {
   // 指定目录和已知文件名
-  const directoryPath = musicPath.slice(0, musicPath.lastIndexOf("/"));
+  const directoryPath = path.dirname(musicPath);
   const knownFileName = "cover";
   return new Promise<string | null>((resolve) => {
     fs.readdir(directoryPath, (err, files) => {
@@ -50,13 +50,11 @@ async function loadCover(musicPath: string) {
         console.error(err);
         resolve(null);
       }
-
       // 查找与已知文件名匹配的文件
       const matchingFile = files.find((file) => {
         const F = path.parse(file);
         const base = path.basename(musicPath);
         const fileName = base.slice(0, base.lastIndexOf("."));
-
         return (
           (F.name.toLowerCase() === knownFileName || F.name === fileName) &&
           (F.ext === ".jpg" || F.ext === ".jpeg" || F.ext === ".png")
@@ -66,14 +64,14 @@ async function loadCover(musicPath: string) {
       if (matchingFile) {
         // 读取文件内容
         const filePath = path.join(directoryPath, matchingFile);
-        fs.readFile(filePath, "base64" ,(err, data) => {
+        fs.readFile(filePath, "base64", (err, data) => {
           if (err) {
             console.error(err);
             resolve(null);
           }
           resolve(data);
         });
-      }else{
+      } else {
         resolve(null);
       }
     });
