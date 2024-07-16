@@ -9,11 +9,11 @@
       <div class="meta-container">
         <div class="meta-container-main">
           <img
+            v-if="musicCoverUrl"
+            :key="musicFileName"
             ref="pictrue"
-            v-if="musicMeta && musicMeta.common.picture"
-            :src="`data:${
-              musicMeta.common.picture[0].format
-            };base64,${musicMeta.common.picture[0].data.toString('base64')}`"
+            :src="musicCoverUrl"
+            crossorigin="anonymous"
           />
         </div>
         <div
@@ -168,10 +168,12 @@
                 v-model="checkList[index]"
                 v-if="showEdit"
               />
-              <div class="music-list-container-item-div">
+              <div
+                class="music-list-container-item-div"
+                @click="showEdit ? null : changeMusic(item, index)"
+              >
                 <span
                   :title="item.name"
-                  @click="showEdit ? null : changeMusic(item, index)"
                   :class="`music-list-container-item-div-span ${
                     now === index ? 'music-list-container-item-active' : null
                   } ${
@@ -218,7 +220,7 @@ import icon from "./assets/music-note.png";
 
 const lyrics = ref<Lyric[]>();
 const player = ref<HTMLAudioElement>();
-const musicFileName = ref<string>("");
+const musicFileName = ref<string>();
 const musicSrcURL = ref<string | undefined>();
 const musicList = ref<MusicFileInfo[]>();
 const musicMeta = ref<IAudioMetadata>();
@@ -232,6 +234,8 @@ const showEdit = ref(false);
 const music_list_container = ref<HTMLUListElement>();
 const sort_obj = ref<Sortable>();
 const isLoading = ref(true);
+const musicCoverUrl = ref<string>();
+const lastMusic = ref<string>();
 
 //监听音乐列表的变化
 watch(
@@ -259,9 +263,29 @@ watch(showEdit, (val) => {
   if (sort_obj.value) sort_obj.value.options.sort = val;
 });
 
+watch(musicFileName, (val) => {
+  lastMusic.value = val;
+});
+
 //监听url变化 手动释放内存
 watch(musicSrcURL, (_newVal, oldVal) => {
   if (oldVal) URL.revokeObjectURL(oldVal);
+});
+//监听meta变化 设置图片src
+watch(musicMeta, (val) => {
+  if (!val) return;
+  if (!musicList.value || musicList.value.length === 0) return;
+  if (val.common.picture)
+    musicCoverUrl.value = `data:${
+      val.common.picture[0].format
+    };base64,${val.common.picture[0].data.toString("base64")}`;
+  else {
+    ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
+  }
+});
+//监听图片src变化 手动释放内存
+watch(musicCoverUrl, () => {
+  executeBackground();
 });
 
 initialize();
@@ -275,27 +299,6 @@ ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
   musicMeta.value = meta;
   if (meta.format.duration) musicDuration.value = meta.format.duration;
   // console.log(meta);
-  //设置背景主题色
-  nextTick(() => {
-    if (pictrue.value) {
-      const rgb = colorfulImg(pictrue.value);
-      const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
-      document.body.style.setProperty("--lyrics_color", color_complement);
-      const color_lsit = get3Colors(pictrue.value);
-      document.body.style.setProperty(
-        "--bg_gradient0",
-        `rgba(${color_lsit[0][0]},${color_lsit[0][1]},${color_lsit[0][2]},0.7)`
-      );
-      document.body.style.setProperty(
-        "--bg_gradient1",
-        `rgba(${color_lsit[1][0]},${color_lsit[1][1]},${color_lsit[1][2]},0.7)`
-      );
-      document.body.style.setProperty(
-        "--bg_gradient2",
-        `rgba(${color_lsit[2][0]},${color_lsit[2][1]},${color_lsit[2][2]},0.7)`
-      );
-    }
-  });
 });
 //监听主进程加载歌词
 ipcRenderer.on("loadLyric", (_event, args: string | undefined) => {
@@ -307,6 +310,15 @@ ipcRenderer.on("open-file", (_event, args: MusicFileInfo[]) => {
   if (args.length === 0) return;
   loadFile(args);
 });
+//监听主进程加载专辑封面
+ipcRenderer.on("loadCover", (_event, args: { buffer: string | null }) => {
+  if (args.buffer === null) {
+    musicCoverUrl.value = undefined;
+    return;
+  }
+  musicCoverUrl.value = `data:image/png;base64,${args.buffer}`;
+});
+
 function initialize() {
   showSideWindow.value = getShowMusicListFromStorage();
   musicList.value = getMusicListFromStorage();
@@ -330,12 +342,36 @@ function playerCoverinitiate() {
         break;
       }
     }
-    if (!showEdit.value) {
+    if (!showEdit.value && lastMusic.value !== musicList.value[index].name) {
       changeMusic(musicList.value[index], index);
       musicFileName.value = musicList.value[index].name;
     }
     now.value = index;
   }
+}
+//改变背景颜色
+function executeBackground() {
+  //设置背景主题色
+  nextTick(() => {
+    if (pictrue.value) {
+      const rgb = colorfulImg(pictrue.value);
+      const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
+      document.body.style.setProperty("--lyrics_color", color_complement);
+      const color_lsit = get3Colors(pictrue.value);
+      document.body.style.setProperty(
+        "--bg_gradient0",
+        `rgba(${color_lsit[0][0]},${color_lsit[0][1]},${color_lsit[0][2]},0.7)`
+      );
+      document.body.style.setProperty(
+        "--bg_gradient1",
+        `rgba(${color_lsit[1][0]},${color_lsit[1][1]},${color_lsit[1][2]},0.7)`
+      );
+      document.body.style.setProperty(
+        "--bg_gradient2",
+        `rgba(${color_lsit[2][0]},${color_lsit[2][1]},${color_lsit[2][2]},0.7)`
+      );
+    }
+  });
 }
 //处理歌词
 function executeLyrics(lyricBody: string) {
@@ -421,7 +457,8 @@ function getLyric(musicPath: string) {
 }
 //更改音乐
 function changeMusic(item: MusicFileInfo | null, index: number) {
-  if (index === now.value || index === -1) return;
+  if (!musicList.value || musicList.value.length === 0) return;
+  if (lastMusic.value === musicList.value[index].name || index === -1) return;
   //传递空值
   if (!item) {
     musicMeta.value = undefined;
@@ -466,6 +503,7 @@ function clearAll() {
   document.body.style.removeProperty("--bg_gradient1");
   document.body.style.removeProperty("--bg_gradient1");
   musicSrcURL.value = undefined;
+  musicCoverUrl.value = undefined;
 }
 //全选
 function selectAll(val?: boolean) {
@@ -500,10 +538,7 @@ function removeFromMusicList() {
     clearAll();
     return;
   }
-  if (isPlaying) {
-    now.value = 0;
-    changeMusic(null, 0);
-  }
+  if (isPlaying) changeMusic(musicList.value[0], 0);
 }
 //保存播放列表状态
 function saveShowMusicListToStorage() {
@@ -564,9 +599,9 @@ function removeButtonClick() {
         defaultId: 1,
       })
       .then((res) => {
-        if (now.value === i && musicList.value && musicList.value.length > 0)
-          changeMusic(musicList.value[0], 0);
         if (res.response === 0) removeFromMusicList();
+        // if (now.value === i && musicList.value && musicList.value.length > 0)
+        //   changeMusic(musicList.value[0], 0);
       });
 }
 //拖入文件

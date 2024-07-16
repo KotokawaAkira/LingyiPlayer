@@ -3,7 +3,7 @@ import path from "path";
 //引入remoteMain
 import remoteMain from "@electron/remote/main";
 
-import { loadMusic } from "../src/request/MusicRequest";
+import { loadCover, loadMusic } from "../src/request/MusicRequest";
 import { loadLyric } from "../src/request/LyricRequest";
 
 app.commandLine.appendSwitch("js-flags", "--expose-gc");
@@ -65,6 +65,12 @@ ipcMain.on("doLoadMusic", async (_event, args: string) => {
   let res: Buffer | null = await loadMusic(args);
   //传递两个数据，第一个为music buffer，第二个为原始路径
   window.webContents.send("loadMusic", { buffer: res, originPath: args });
+  res = null;
+});
+//加载专辑封面
+ipcMain.on("doLoadCover", async (_event, args: string) => {
+  let res: string | null = await loadCover(args);
+  window.webContents.send("loadCover", { buffer: res });
   res = null;
 });
 //音乐进度条

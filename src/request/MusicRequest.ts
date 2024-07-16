@@ -1,24 +1,25 @@
 import fs from "fs";
 import { parseBuffer } from "music-metadata-browser";
 import { MusicFileInfo } from "../type/Music";
+import path from "path";
 
 //从本地加载音乐
-async function loadMusic(path: string) {
+async function loadMusic(filePath: string) {
   return new Promise<Buffer>((resolve, reject) => {
-    fs.readFile(path, (err, data: Buffer) => {
+    fs.readFile(filePath, (err, data: Buffer) => {
       if (err) reject(err);
       else resolve(data);
     });
   });
 }
 //读取文件夹中所有的音乐文件
-function getFilesAndFoldersInDir(path: string, list: MusicFileInfo[]) {
-  const items = fs.readdirSync(path);
+function getFilesAndFoldersInDir(filePath: string, list: MusicFileInfo[]) {
+  const items = fs.readdirSync(filePath);
   items.forEach((item) => {
-    const itemPath = `${path}/${item}`;
-    const stat = fs.statSync(itemPath);
+    const itemfilePath = `${filePath}/${item}`;
+    const stat = fs.statSync(itemfilePath);
     if (stat.isDirectory()) {
-      getFilesAndFoldersInDir(itemPath, list);
+      getFilesAndFoldersInDir(itemfilePath, list);
     } else {
       // 文件
       const type = item.slice(item.lastIndexOf(".") + 1);
@@ -26,7 +27,7 @@ function getFilesAndFoldersInDir(path: string, list: MusicFileInfo[]) {
         list.push({
           type,
           name: item,
-          originPath: itemPath,
+          originPath: itemfilePath,
         });
       }
     }
@@ -38,4 +39,44 @@ async function parseMeta(buff: Buffer) {
   const meta = await parseBuffer(buff);
   return meta;
 }
-export { loadMusic, getFilesAndFoldersInDir, parseMeta };
+//读取图片文件
+async function loadCover(musicPath: string) {
+  // 指定目录和已知文件名
+  const directoryPath = musicPath.slice(0, musicPath.lastIndexOf("/"));
+  const knownFileName = "cover";
+  return new Promise<string | null>((resolve) => {
+    fs.readdir(directoryPath, (err, files) => {
+      if (err) {
+        console.error(err);
+        resolve(null);
+      }
+
+      // 查找与已知文件名匹配的文件
+      const matchingFile = files.find((file) => {
+        const F = path.parse(file);
+        const base = path.basename(musicPath);
+        const fileName = base.slice(0, base.lastIndexOf("."));
+
+        return (
+          (F.name.toLowerCase() === knownFileName || F.name === fileName) &&
+          (F.ext === ".jpg" || F.ext === ".jpeg" || F.ext === ".png")
+        );
+      });
+
+      if (matchingFile) {
+        // 读取文件内容
+        const filePath = path.join(directoryPath, matchingFile);
+        fs.readFile(filePath, "base64" ,(err, data) => {
+          if (err) {
+            console.error(err);
+            resolve(null);
+          }
+          resolve(data);
+        });
+      }else{
+        resolve(null);
+      }
+    });
+  });
+}
+export { loadMusic, getFilesAndFoldersInDir, parseMeta, loadCover };

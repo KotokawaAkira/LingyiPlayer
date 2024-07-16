@@ -136,6 +136,7 @@ function lyricScroll(i: number) {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      color: var(--font_color);
     }
     .lyrics {
       margin: 15px 5px;

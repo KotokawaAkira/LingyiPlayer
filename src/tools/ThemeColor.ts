@@ -6,7 +6,7 @@ function colorfulImg(img: HTMLImageElement) {
     height,
     width,
     length,
-    data,
+    // data,
     i = -4,
     blockSize = 5,
     count = 0,
@@ -16,7 +16,9 @@ function colorfulImg(img: HTMLImageElement) {
   width = canvas.width = img.width;
   if (!context) return rgb;
   context.drawImage(img, 0, 0);
-  data = context.getImageData(0, 0, width, height).data;
+  let Data = context.getImageData(0, 0, width, height);
+  let data = Data.data;
+  
   length = data.length;
   while ((i += blockSize * 4) < length) {
     ++count;
@@ -55,7 +57,7 @@ function get3Colors(img: HTMLImageElement) {
     if (pixels[i + 3] > 0) {
       pixelArray.push([r, g, b]);
     }
-  }
+  }  
   // 使用 k-means 聚类算法提取三种主要颜色
   const numberOfClusters = 3;
   const result = kmeans(pixelArray, numberOfClusters, {
