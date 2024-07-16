@@ -583,11 +583,7 @@ function resetIndex(oldIndex: number, newIndex: number) {
 }
 //点击删除
 function removeButtonClick() {
-  let i = 0;
-  const hasTrue = checkList.value.some((item, index) => {
-    i = index;
-    return item === true;
-  });
+  const hasTrue = checkList.value.some((item) =>  item === true);
   if (hasTrue)
     dialog
       .showMessageBox({
