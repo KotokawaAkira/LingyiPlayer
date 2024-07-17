@@ -449,8 +449,9 @@ function volumeClick(e: MouseEvent) {
   if (!props.player || !volume_progress_out.value || !volume_progress.value)
     return;
   const percent =
-    (e.clientX - volume_progress_out.value.offsetLeft) /
-    volume_progress_out.value.offsetWidth;
+    1 -
+    (e.clientY - volume_progress_out.value.offsetTop) /
+      volume_progress_out.value.offsetHeight;
   props.player.volume = percent;
 }
 //音量轴鼠标移动
@@ -458,8 +459,9 @@ function volumeMove(e: MouseEvent) {
   if (!props.player || !volume_progress_out.value || !volume_progress.value)
     return;
   let percent =
-    (e.clientX - volume_progress_out.value.offsetLeft) /
-    volume_progress_out.value.offsetWidth;
+    1 -
+    (e.clientY - volume_progress_out.value.offsetTop) /
+      volume_progress_out.value.offsetHeight;
   if (percent < 0) percent = 0;
   if (percent > 1) percent = 1;
   props.player.volume = percent;
