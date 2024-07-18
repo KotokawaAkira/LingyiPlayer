@@ -273,6 +273,8 @@ watch(musicSrcURL, (_newVal, oldVal) => {
 });
 //监听meta变化 设置图片src
 watch(musicMeta, (val) => {
+  //设置窗口名称
+  changeTitle();
   if (!val) return;
   if (!musicList.value || musicList.value.length === 0) return;
   if (val.common.picture)
@@ -583,7 +585,7 @@ function resetIndex(oldIndex: number, newIndex: number) {
 }
 //点击删除
 function removeButtonClick() {
-  const hasTrue = checkList.value.some((item) =>  item === true);
+  const hasTrue = checkList.value.some((item) => item === true);
   if (hasTrue)
     dialog
       .showMessageBox({
@@ -634,6 +636,24 @@ function loadFile(list: MusicFileInfo[]) {
     if (list_offset !== -1)
       changeMusic(musicList.value[list_offset], list_offset);
   }
+}
+//更改窗口名称
+function changeTitle() {
+  let title = musicFileName.value;
+  if (
+    musicMeta.value &&
+    musicMeta.value.common.artists &&
+    musicMeta.value.common.artists.length > 0 &&
+    musicMeta.value.common.title
+  ) {
+    title = "";
+    for (let i = 0; i < musicMeta.value.common.artists.length; i++) {
+      title += musicMeta.value.common.artists[i];
+      if (i !== musicMeta.value.common.artists.length - 1) title += " ";
+    }
+    title += ` - ${musicMeta.value.common.title}  [Lingyi Player]`;
+  } else title = undefined;
+  ipcRenderer.send("titleChange", title);
 }
 </script>
 

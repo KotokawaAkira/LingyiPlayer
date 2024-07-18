@@ -77,6 +77,11 @@ ipcMain.on("doLoadCover", async (_event, args: string) => {
 ipcMain.on("progressUpdate", (_event, progress: number) => {
   window.setProgressBar(progress);
 });
+//更改窗口名称
+ipcMain.on("titleChange", (_event, args: string) => {
+  if (args && args !== "") window.setTitle(args);
+  else window.setTitle("Lingyi Player");
+});
 //任务栏播放控制
 ipcMain.on(
   "doSetTumbarButtons",
