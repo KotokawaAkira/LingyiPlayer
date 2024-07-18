@@ -47,6 +47,15 @@ let unLocked = true;
 watch(() => props.player, setPlayer);
 watch(() => props.lyrics, getLyricDom);
 watch(index, indexChange);
+//监听翻译状态 滚动歌词
+watch(
+  () => props.showTranslation,
+  () => {
+    nextTick(() => {
+      lyricScroll(index.value);
+    });
+  }
+);
 
 function setPlayer() {
   if (props.player) {
