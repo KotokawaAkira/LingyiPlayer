@@ -293,6 +293,10 @@ watch(musicMeta, (val) => {
 watch(musicCoverUrl, () => {
   executeBackground();
 });
+//监听now
+watch(now, (val) => {
+  playListScroll(val);
+});
 
 initialize();
 
