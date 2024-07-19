@@ -242,6 +242,7 @@ const props = defineProps<{
   changeMusic: (item: MusicFileInfo, index: number) => void;
   now: number;
   changeShowTranslate: { isShow: boolean; changeShow: () => void };
+  playListScroll: (index: number) => void;
 }>();
 import { ref, watch } from "vue";
 import { formatSeconds } from "../tools/TimeTransform";
@@ -391,6 +392,7 @@ function preMusic(now: number) {
       props.musicList.length - 1
     );
   else props.changeMusic(props.musicList[now - 1], now - 1);
+  props.playListScroll(now);
 }
 //下一首
 function nextMusic(now: number) {
@@ -405,6 +407,7 @@ function nextMusic(now: number) {
       randomPlay(now);
       break;
   }
+  props.playListScroll(now);
 }
 //列表循环
 function listPlay(now: number) {

@@ -198,6 +198,7 @@
           isShow: showTranslation,
           changeShow: changeShowTranslate,
         }"
+        :playListScroll
       />
     </div>
   </main>
@@ -250,6 +251,8 @@ watch(
     for (let i = 0; i < val.length; i++) {
       checkList.value.push(false);
     }
+    //设置播放列表滚动到正在播放
+    playListScroll(now.value);
   },
   { deep: true }
 );
@@ -655,6 +658,19 @@ function changeTitle() {
   } else title = undefined;
   ipcRenderer.send("titleChange", title);
 }
+//刷新播放列表scroll高度
+function playListScroll(index: number) {
+  const list_container = document.querySelector(
+    ".music-list-container"
+  ) as HTMLUListElement;
+  const list = list_container.children;
+  const active_item = list[index] as HTMLLIElement;
+  list_container.scrollTo({
+    left: 0,
+    top: active_item.offsetTop - active_item.clientHeight,
+    behavior: "smooth",
+  });
+}
 </script>
 
 <style lang="scss" scoped>
@@ -749,12 +765,7 @@ main {
       }
     }
   }
-  &:hover .music-list-overlay {
-    opacity: 1;
-  }
-  &:hover .music-list {
-    filter: drop-shadow(0px 0px 5px var(--bg_progress));
-  }
+
   .music-list {
     position: relative;
     padding: 1rem 0.5rem;
@@ -768,6 +779,12 @@ main {
     overflow-y: auto;
     overflow-x: hidden;
     gap: 1rem;
+    &:hover {
+      filter: drop-shadow(0px 0px 5px var(--bg_progress));
+    }
+    &:hover .music-list-overlay {
+      opacity: 1;
+    }
     &-overlay {
       position: absolute;
       width: 100%;
@@ -818,6 +835,7 @@ main {
       width: 100%;
       overflow-y: auto;
       overflow-x: hidden;
+      position: relative;
 
       &::-webkit-scrollbar {
         width: 0.5rem;
