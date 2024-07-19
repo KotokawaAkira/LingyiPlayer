@@ -241,7 +241,7 @@ const lastMusic = ref<string>();
 //监听音乐列表的变化
 watch(
   musicList,
-  (val) => {
+  (val, oldVal) => {
     if (!val) return;
     if (val.length === 0) clearAll();
     playerCoverinitiate();
@@ -251,8 +251,9 @@ watch(
     for (let i = 0; i < val.length; i++) {
       checkList.value.push(false);
     }
-    //设置播放列表滚动到正在播放
-    playListScroll(now.value);
+    if (!oldVal)
+      //设置播放列表滚动到正在播放
+      playListScroll(now.value);
   },
   { deep: true }
 );
@@ -839,11 +840,6 @@ main {
 
       &::-webkit-scrollbar {
         width: 0.5rem;
-      }
-      &::-webkit-scrollbar-track {
-        background-color: var(--bg_progress);
-        opacity: 0.6;
-        border-radius: 0.25rem;
       }
       &::-webkit-scrollbar-thumb {
         background-color: var(--bg_progress_active);
