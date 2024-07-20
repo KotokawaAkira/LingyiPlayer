@@ -386,13 +386,15 @@ function playClick() {
 //上一首
 function preMusic(now: number) {
   if (!props.musicList) return;
-  if (now === 0)
-    props.changeMusic(
-      props.musicList[props.musicList.length - 1],
-      props.musicList.length - 1
-    );
-  else props.changeMusic(props.musicList[now - 1], now - 1);
-  props.playListScroll(now);
+  let index = now;
+  if (now === 0) {
+    index = props.musicList.length - 1;
+    props.changeMusic(props.musicList[index], index);
+  } else {
+    index = now - 1;
+    props.changeMusic(props.musicList[index], index);
+  }
+  props.playListScroll(index);
 }
 //下一首
 function nextMusic(now: number) {
@@ -407,14 +409,19 @@ function nextMusic(now: number) {
       randomPlay(now);
       break;
   }
-  props.playListScroll(now);
 }
 //列表循环
 function listPlay(now: number) {
+  let index = now;
   if (!props.musicList) return;
-  if (now === props.musicList.length - 1)
-    props.changeMusic(props.musicList[0], 0);
-  else props.changeMusic(props.musicList[now + 1], now + 1);
+  if (now === props.musicList.length - 1) {
+    index = 0;
+    props.changeMusic(props.musicList[index], index);
+  } else {
+    index += 1;
+    props.changeMusic(props.musicList[index], index);
+  }
+  props.playListScroll(index);
 }
 //单曲循环
 function circulatePlay(now: number) {
@@ -430,6 +437,7 @@ function randomPlay(now: number) {
     return;
   }
   props.changeMusic(props.musicList[index], index);
+  props.playListScroll(index);
 }
 //切换下一首模式
 function switchPlayMode() {

@@ -5,6 +5,7 @@ import remoteMain from "@electron/remote/main";
 
 import { loadCover, loadMusic } from "../src/request/MusicRequest";
 import { loadLyric } from "../src/request/LyricRequest";
+import { kmeans } from "ml-kmeans";
 
 app.commandLine.appendSwitch("js-flags", "--expose-gc");
 
@@ -94,6 +95,33 @@ ipcMain.on(
     setTumbarButtons(args);
   }
 );
+//计算三种主要颜色
+ipcMain.on("doGet3Color", (_event, color) => {
+  const colorList = [[0, 0, 0]];
+  if (!color) return window.webContents.send("get3Color", colorList);
+  const pixels = color;
+  const pixelArray: number[][] = [];
+  // 将像素数据转换为RGB数组
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i];
+    const g = pixels[i + 1];
+    const b = pixels[i + 2];
+    // 只保留不透明的像素
+    if (pixels[i + 3] > 0) {
+      pixelArray.push([r, g, b]);
+    }
+  }
+  // 使用 k-means 聚类算法提取三种主要颜色
+  const numberOfClusters = 3;
+  const result = kmeans(pixelArray, numberOfClusters, {
+    maxIterations: 10,
+    tolerance: 1e-6,
+  });
+  for (let i = result.centroids.length - 1; i >= 0; i--) {
+    colorList[i] = result.centroids[i];
+  }
+  window.webContents.send("get3Color", colorList);
+});
 //控制 上一首
 function doPre() {
   window.webContents.send("doPre");

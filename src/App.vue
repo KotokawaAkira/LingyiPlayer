@@ -293,21 +293,18 @@ watch(musicMeta, (val) => {
 watch(musicCoverUrl, () => {
   executeBackground();
 });
-//监听now
-watch(now, (val) => {
-  playListScroll(val);
-});
 
 initialize();
 
 //监听主进程加载音乐
-ipcRenderer.on("loadMusic", async (_event, args: MusicBuffer) => {
+ipcRenderer.on("loadMusic", (_event, args: MusicBuffer) => {
   if (args === null) return;
   musicSrcURL.value = URL.createObjectURL(new Blob([args.buffer]));
   getLyric(args.originPath);
-  const meta = await parseMeta(args.buffer);
-  musicMeta.value = meta;
-  if (meta.format.duration) musicDuration.value = meta.format.duration;
+  parseMeta(args.buffer).then((meta) => {
+    musicMeta.value = meta;
+    if (meta.format.duration) musicDuration.value = meta.format.duration;
+  });
   // console.log(meta);
 });
 //监听主进程加载歌词
@@ -328,7 +325,21 @@ ipcRenderer.on("loadCover", (_event, args: { buffer: string | null }) => {
   }
   musicCoverUrl.value = `data:image/png;base64,${args.buffer}`;
 });
-
+//监听主进程发送的三种主要颜色
+ipcRenderer.on("get3Color", (_event, color_list: number[][]) => {
+  document.body.style.setProperty(
+    "--bg_gradient0",
+    `rgba(${color_list[0][0]},${color_list[0][1]},${color_list[0][2]},0.7)`
+  );
+  document.body.style.setProperty(
+    "--bg_gradient1",
+    `rgba(${color_list[1][0]},${color_list[1][1]},${color_list[1][2]},0.7)`
+  );
+  document.body.style.setProperty(
+    "--bg_gradient2",
+    `rgba(${color_list[2][0]},${color_list[2][1]},${color_list[2][2]},0.7)`
+  );
+});
 function initialize() {
   showSideWindow.value = getShowMusicListFromStorage();
   musicList.value = getMusicListFromStorage();
@@ -367,19 +378,8 @@ function executeBackground() {
       const rgb = colorfulImg(pictrue.value);
       const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
       document.body.style.setProperty("--lyrics_color", color_complement);
-      const color_lsit = get3Colors(pictrue.value);
-      document.body.style.setProperty(
-        "--bg_gradient0",
-        `rgba(${color_lsit[0][0]},${color_lsit[0][1]},${color_lsit[0][2]},0.7)`
-      );
-      document.body.style.setProperty(
-        "--bg_gradient1",
-        `rgba(${color_lsit[1][0]},${color_lsit[1][1]},${color_lsit[1][2]},0.7)`
-      );
-      document.body.style.setProperty(
-        "--bg_gradient2",
-        `rgba(${color_lsit[2][0]},${color_lsit[2][1]},${color_lsit[2][2]},0.7)`
-      );
+      const color_list = get3Colors(pictrue.value);
+      ipcRenderer.send("doGet3Color", color_list);
     }
   });
 }
@@ -665,15 +665,17 @@ function changeTitle() {
 }
 //刷新播放列表scroll高度
 function playListScroll(index: number) {
+  let top = 0;
   const list_container = document.querySelector(
     ".music-list-container"
   ) as HTMLUListElement;
   const list = list_container.children;
   const active_item = list[index] as HTMLLIElement;
+  top = active_item.offsetTop - active_item.clientHeight;
+  if (index === 0) top = 0;
   list_container.scrollTo({
     left: 0,
-    top: active_item.offsetTop - active_item.clientHeight,
-    behavior: "smooth",
+    top,
   });
 }
 </script>
