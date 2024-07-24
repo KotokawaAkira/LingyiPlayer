@@ -120,7 +120,6 @@ function lyricScroll(i: number) {
 </script>
 <style lang="scss">
 .lyrics-body {
-  height: calc(70vh + 4rem);
   .lyric-container {
     margin: 0 auto;
     position: relative;

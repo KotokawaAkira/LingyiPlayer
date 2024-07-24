@@ -200,14 +200,31 @@
       </div>
     </div>
 
-    <div class="controls-volume" @wheel="volumeMouseWheel" title="音量(↑↓)">
-      <div
-        ref="volume_progress_out"
-        class="volume-progress"
-        @click="volumeClick"
-        @mousedown="volumeDown"
-      >
-        <div ref="volume_progress" class="volume-progress-inner"></div>
+    <div
+      class="controls-volume"
+      @wheel="volumeMouseWheel"
+      :title="`音量(${Number.parseInt((volume * 100).toFixed(2))}%)`"
+    >
+      <div style="position: relative">
+        <div
+          ref="volume_progress_out"
+          class="volume-progress"
+          @click="volumeClick"
+          @mousedown="volumeDown"
+        >
+          <div ref="volume_progress" class="volume-progress-inner"></div>
+        </div>
+        <transition name="show">
+          <div
+            v-show="showIndicator"
+            class="controls-volume-indicator"
+            :style="`--percent:${
+              100 - Number.parseInt((volume * 100).toFixed(2))
+            }%`"
+          >
+            {{ Number.parseInt((volume * 100).toFixed(2)) }}%
+          </div>
+        </transition>
       </div>
       <div class="controls-volume-icon" @click="mute">
         <svg
@@ -260,8 +277,10 @@ const isPlaying = ref(false);
 const volume = ref(0);
 const playMode = ref<PlayMode>({ type: 0, label: "列表循环" });
 const keydownActive = ref(false);
+const showIndicator = ref(false);
 
 let lastTime = 0;
+let timer: string | number | NodeJS.Timeout | undefined;
 
 watch(
   () => props.player,
@@ -459,20 +478,14 @@ function switchPlayMode() {
 function volumeClick(e: MouseEvent) {
   if (!props.player || !volume_progress_out.value || !volume_progress.value)
     return;
-  const percent =
-    1 -
-    (e.clientY - volume_progress_out.value.offsetTop) /
-      volume_progress_out.value.offsetHeight;
+  let percent = e.offsetY / volume_progress_out.value.offsetHeight;
   props.player.volume = percent;
 }
 //音量轴鼠标移动
 function volumeMove(e: MouseEvent) {
   if (!props.player || !volume_progress_out.value || !volume_progress.value)
     return;
-  let percent =
-    1 -
-    (e.clientY - volume_progress_out.value.offsetTop) /
-      volume_progress_out.value.offsetHeight;
+  let percent = e.offsetY / volume_progress_out.value.offsetHeight;
   if (percent < 0) percent = 0;
   if (percent > 1) percent = 1;
   props.player.volume = percent;
@@ -516,6 +529,7 @@ function volumeChange() {
   volume_progress.value.style.height = props.player.volume * 100 + "%";
   volume.value = props.player.volume;
   saveVolume();
+  volumeIndicator();
 }
 //音量数据写入缓存
 function saveVolume() {
@@ -580,6 +594,12 @@ function keyboardUp(e: KeyboardEvent) {
       else props.player.play();
       break;
   }
+}
+//显示、隐藏音量数据
+function volumeIndicator() {
+  showIndicator.value = true;
+  clearTimeout(timer);
+  timer = setTimeout(() => (showIndicator.value = false), 2000);
 }
 </script>
 
@@ -688,6 +708,7 @@ function keyboardUp(e: KeyboardEvent) {
     gap: 0.2rem;
     padding: 8px 0 10px 0;
     box-sizing: border-box;
+    position: relative;
     &-icon {
       height: 2rem;
       width: 2rem;
@@ -724,6 +745,42 @@ function keyboardUp(e: KeyboardEvent) {
       border-bottom-right-radius: 10px;
       background-color: var(--bg_progress_active);
     }
+    &-indicator {
+      position: absolute;
+      left: 2.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 0.5rem;
+      height: 1.5rem;
+      width: 2rem;
+      padding: 2px;
+      color: var(--bg_progress_active);
+      top: calc(var(--percent) - 0.8rem);
+      &::after {
+        content: "";
+        display: block;
+        border-top: 0.5rem solid var(--bg_progress_active);
+        border-bottom: 0.5rem solid transparent;
+        border-left: 0.5rem solid transparent;
+        border-right: 0.5rem solid transparent;
+        position: absolute;
+        left: -1.5rem;
+        transform: rotate(90deg);
+      }
+    }
   }
+}
+.show-enter-from,
+.show-leave-to {
+  opacity: 0;
+}
+.show-enter-to,
+.show-leave-from {
+  opacity: 1;
+}
+.show-enter-active,
+.show-leave-active {
+  transition: opacity 0.5s ease;
 }
 </style>
