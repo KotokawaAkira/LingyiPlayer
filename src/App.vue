@@ -308,7 +308,7 @@ const sort_obj = ref<Sortable>();
 const isLoading = ref(true);
 const musicCoverUrl = ref<string>();
 const lastMusic = ref<string>();
-const showDialog = ref(true);
+const showDialog = ref(false);
 
 let change = true;
 
