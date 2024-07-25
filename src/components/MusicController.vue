@@ -87,6 +87,25 @@
         <div class="extension-controls">
           <div
             style="height: 2rem; width: 2rem"
+            title="歌曲信息"
+            @click="props.showInfo"
+          >
+            <svg
+              class="play-controls-icon"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,22A10,10,0,1,1,22,12,10.011,10.011,0,0,1,12,22Z"
+              />
+              <path
+                d="M12.717,5.063A4,4,0,0,0,8,9a1,1,0,0,0,2,0,2,2,0,0,1,2.371-1.967,2.024,2.024,0,0,1,1.6,1.595,2,2,0,0,1-1,2.125A3.644,3.644,0,0,0,11,14a.965.965,0,0,0,1,.957,1.039,1.039,0,0,0,1-1.044,1.646,1.646,0,0,1,.93-1.408,4,4,0,0,0-1.213-7.442Z"
+              />
+              <path d="M12.02,17h-.01a1.005,1.005,0,1,0,.01,0Z" />
+            </svg>
+          </div>
+          <div
+            style="height: 2rem; width: 2rem"
             title="翻译"
             @click="changeShowTranslate.changeShow"
           >
@@ -260,6 +279,7 @@ const props = defineProps<{
   now: number;
   changeShowTranslate: { isShow: boolean; changeShow: () => void };
   playListScroll: (index: number) => void;
+  showInfo: () => void;
 }>();
 import { ref, watch } from "vue";
 import { formatSeconds } from "../tools/TimeTransform";

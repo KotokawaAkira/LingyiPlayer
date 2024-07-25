@@ -6,8 +6,10 @@ import remoteMain from "@electron/remote/main";
 import { loadCover, loadMusic } from "../src/request/MusicRequest";
 import { loadLyric } from "../src/request/LyricRequest";
 import { kmeans } from "ml-kmeans";
+import { MusicFileInfo } from "../src/type/Music";
 
 app.commandLine.appendSwitch("js-flags", "--expose-gc");
+const lock = app.requestSingleInstanceLock();
 
 //初始化remoteMain
 remoteMain.initialize();
@@ -41,14 +43,48 @@ const createWindows = () => {
   remoteMain.enable(window.webContents);
 };
 
-//当app就绪 创建窗口
-app.whenReady().then(() => {
-  createWindows();
-  window.setMenu(null);
-});
+if (!lock) {
+  app.quit();
+} else {
+  app.on("second-instance", (_event, commandLine) => {
+    if (window) {
+      if (window.isMinimized()) window.restore();
+      window.focus();
+    }
+
+    // 当试图运行第二个实例时，这个事件会被触发
+    const paths = commandLine.filter(
+      (item) =>
+        item.endsWith(".flac") || item.endsWith(".wav") || item.endsWith(".mp3")
+    );
+    const music_list: MusicFileInfo[] = [];
+    for (let i = 0; i < paths.length; i++) {
+      const name = path.basename(paths[i]);
+      const type = path.extname(paths[i]);
+      music_list.push({ type, name, originPath: paths[i] });
+    }
+    window.webContents.send("open-file", music_list);
+  });
+  //当app就绪 创建窗口
+  app.whenReady().then(() => {
+    createWindows();
+    // window.setMenu(null);
+  });
+}
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows.length === 0) createWindows();
+});
+app.on("open-file", (_event, originPath) => {
+  if (
+    !originPath.endsWith(".flac") ||
+    !originPath.endsWith(".wav") ||
+    !originPath.endsWith(".mp3")
+  )
+    return;
+  const name = path.basename(originPath);
+  const type = path.extname(originPath);
+  window.webContents.send("open-file", { type, name, originPath });
 });
 
 //关闭窗口
@@ -62,12 +98,19 @@ ipcMain.on("doLoadLyric", async (_event, args: string) => {
   res = undefined;
 });
 //加载音乐
-ipcMain.on("doLoadMusic", async (_event, args: string) => {
-  let res: Buffer | null = await loadMusic(args);
-  //传递两个数据，第一个为music buffer，第二个为原始路径
-  window.webContents.send("loadMusic", { buffer: res, originPath: args });
-  res = null;
-});
+ipcMain.on(
+  "doLoadMusic",
+  async (_event, args: { originPath: string; index: number }) => {
+    let res: Buffer | null = await loadMusic(args.originPath);
+    //传递两个数据，第一个为music buffer，第二个为原始路径
+    window.webContents.send("loadMusic", {
+      buffer: res,
+      originPath: args.originPath,
+      index: args.index,
+    });
+    res = null;
+  }
+);
 //加载专辑封面
 ipcMain.on("doLoadCover", async (_event, args: string) => {
   let res: string | null = await loadCover(args);

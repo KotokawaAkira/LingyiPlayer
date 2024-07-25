@@ -5,9 +5,9 @@ import path from "path";
 
 //从本地加载音乐
 async function loadMusic(filePath: string) {
-  return new Promise<Buffer>((resolve, reject) => {
+  return new Promise<Buffer | null>((resolve) => {
     fs.readFile(filePath, (err, data: Buffer) => {
-      if (err) reject(err);
+      if (err) resolve(null);
       else resolve(data);
     });
   });

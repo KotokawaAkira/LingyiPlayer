@@ -162,6 +162,7 @@
               class="music-list-container-item"
               v-for="(item, index) in musicList"
               :key="item.originPath"
+              @mouseup="showFilePath($event, item.originPath)"
             >
               <input
                 type="checkbox"
@@ -199,8 +200,78 @@
           changeShow: changeShowTranslate,
         }"
         :playListScroll
+        :showInfo
       />
     </div>
+    <section style="position: fixed">
+      <transition name="fade">
+        <div v-show="showDialog" class="mask" @click="showDialog = false"></div>
+      </transition>
+      <transition name="show">
+        <div class="dialog" v-if="showDialog">
+          <div class="show-detail">
+            <div class="s-title">歌曲信息</div>
+            <div class="show-main">
+              <div class="show-main-img-container">
+                <img v-if="musicCoverUrl" :src="musicCoverUrl" />
+              </div>
+              <div class="show-main-detail">
+                <div>
+                  文件：<span v-if="musicList && now !== -1">
+                    {{
+                      musicList?.length > 0 ? musicList[now].originPath : null
+                    }}
+                  </span>
+                </div>
+                <div>
+                  码率：{{
+                    musicMeta?.format.bitrate
+                      ? musicMeta?.format.bitrate / 1000 + "kbps"
+                      : null
+                  }}
+                </div>
+                <div>
+                  采样率：{{
+                    musicMeta?.format.sampleRate
+                      ? musicMeta?.format.sampleRate / 1000 + "kHZ"
+                      : null
+                  }}
+                </div>
+                <div>歌曲名称：{{ musicMeta?.common.title }}</div>
+                <div>
+                  创作者：
+                  <span v-if="musicMeta?.common.artists">
+                    <span v-for="(item, i) in musicMeta?.common.artists"
+                      >{{ item }}
+                      <span v-if="i !== musicMeta?.common.artists.length - 1"
+                        >&nbsp;</span
+                      ></span
+                    >
+                  </span>
+                </div>
+                <div>专辑：{{ musicMeta?.common.album }}</div>
+                <div v-if="musicMeta?.common.year">
+                  年代：{{ musicMeta?.common.year }}
+                </div>
+                <div v-if="musicMeta?.common.genre">
+                  类型：<span v-if="musicMeta?.common.genre">
+                    <span v-for="(item, i) in musicMeta?.common.genre"
+                      >{{ item }}
+                      <span v-if="i !== musicMeta?.common.genre.length - 1"
+                        >&nbsp;</span
+                      ></span
+                    ></span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="confirm-option">
+              <button @click="showDialog = false">确定</button>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </section>
   </main>
 </template>
 <script setup lang="ts">
@@ -237,6 +308,9 @@ const sort_obj = ref<Sortable>();
 const isLoading = ref(true);
 const musicCoverUrl = ref<string>();
 const lastMusic = ref<string>();
+const showDialog = ref(true);
+
+let change = true;
 
 //监听音乐列表的变化
 watch(
@@ -289,7 +363,7 @@ watch(musicMeta, (val) => {
     ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
   }
 });
-//监听图片src变化 手动释放内存
+//监听图片src变化
 watch(musicCoverUrl, () => {
   executeBackground();
 });
@@ -298,14 +372,28 @@ initialize();
 
 //监听主进程加载音乐
 ipcRenderer.on("loadMusic", (_event, args: MusicBuffer) => {
-  if (args === null) return;
+  if (args.buffer === null) {
+    dialog.showMessageBox({
+      title: "提示",
+      message: `"${musicList.value![args.index].name}" 该文件已丢失！`,
+    });
+    return;
+  }
   musicSrcURL.value = URL.createObjectURL(new Blob([args.buffer]));
   getLyric(args.originPath);
   parseMeta(args.buffer).then((meta) => {
     musicMeta.value = meta;
     if (meta.format.duration) musicDuration.value = meta.format.duration;
   });
-  // console.log(meta);
+  //设置当前正在播放状态 用于保存上次播放记录
+  for (let i = 0; i < musicList.value!.length; i++) {
+    if (i === args.index) {
+      musicList.value![i].active = true;
+      now.value = i;
+      musicFileName.value = musicList.value![i].name;
+    } else musicList.value![i].active = false;
+  }
+  saveMusicListInStorage(musicList.value!);
 });
 //监听主进程加载歌词
 ipcRenderer.on("loadLyric", (_event, args: string | undefined) => {
@@ -355,7 +443,7 @@ function initialize() {
 function playerCoverinitiate() {
   if (!musicList.value) return;
 
-  if (musicList.value.length > 0) {
+  if (musicList.value.length > 0 && change) {
     let index = 0;
     for (let i = 0; i < musicList.value.length; i++) {
       if (musicList.value[i].active) {
@@ -369,6 +457,7 @@ function playerCoverinitiate() {
     }
     now.value = index;
   }
+  change = false;
 }
 //改变背景颜色
 function executeBackground() {
@@ -476,16 +565,8 @@ function changeMusic(item: MusicFileInfo | null, index: number) {
     player.value!.src = "null";
     return;
   }
-  now.value = index;
-  musicFileName.value = item.name;
-  ipcRenderer.send("doLoadMusic", item.originPath);
+  ipcRenderer.send("doLoadMusic", { originPath: item.originPath, index });
   if (player.value) player.value.oncanplay = () => player.value?.play();
-  //设置当前正在播放状态 用于保存上次播放记录
-  for (let i = 0; i < musicList.value!.length; i++) {
-    if (i === index) musicList.value![i].active = true;
-    else musicList.value![i].active = false;
-  }
-  saveMusicListInStorage(musicList.value!);
 }
 //储存当前播放列表
 function saveMusicListInStorage(val: MusicFileInfo[]) {
@@ -677,6 +758,15 @@ function playListScroll(index: number) {
     left: 0,
     top,
   });
+}
+//显示歌曲信息
+function showInfo() {
+  showDialog.value = true;
+}
+//右键显示文件路径
+function showFilePath(e: MouseEvent, filePath: string) {
+  if (e.button === 2)
+    dialog.showMessageBox({ title: "文件路径", message: filePath });
 }
 </script>
 
@@ -924,6 +1014,75 @@ main {
   padding: 1rem 0;
   box-sizing: border-box;
 }
+.mask {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba($color: #232323, $alpha: 0.6);
+}
+.dialog {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  .show-detail {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    background-color: var(--bg);
+    color: var(--font_color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.72);
+
+    .s-title {
+      font-size: 24px;
+    }
+
+    .show-main {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+
+      &-img-container {
+        min-width: 200px;
+        max-width: 350px;
+        width: 30%;
+        img {
+          width: 100%;
+          aspect-ratio: 1;
+        }
+      }
+      &-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        font-size: 1.1rem;
+      }
+    }
+
+    .confirm-option {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 20px;
+      box-sizing: border-box;
+      button {
+        font-weight: 600;
+      }
+    }
+  }
+}
 @keyframes circulateTranslate {
   0% {
     transform: translate(0);
@@ -952,5 +1111,21 @@ main {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
+}
+.show-enter-from,
+.show-leave-to {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.show-enter-to,
+.show-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.show-enter-active,
+.show-leave-active {
+  transition: all 0.5s ease-in-out;
 }
 </style>
