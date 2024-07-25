@@ -1078,6 +1078,7 @@ main {
         flex-direction: column;
         gap: 1rem;
         font-size: 1.1rem;
+        width: 50%;
       }
     }
 
