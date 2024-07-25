@@ -1049,7 +1049,7 @@ main {
     align-items: center;
     gap: 25px;
     box-sizing: border-box;
-    padding: 10px;
+    padding: 10px 3rem;
     border-radius: 10px;
     box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.72);
 
@@ -1061,15 +1061,16 @@ main {
       width: 100%;
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 3rem;
 
       &-img-container {
         min-width: 200px;
         max-width: 350px;
-        width: 30%;
+        width: 40%;
         img {
           width: 100%;
-          aspect-ratio: 1;
+          object-fit: contain;
         }
       }
       &-detail {
