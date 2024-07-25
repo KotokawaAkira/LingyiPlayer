@@ -68,7 +68,7 @@ if (!lock) {
   //当app就绪 创建窗口
   app.whenReady().then(() => {
     createWindows();
-    // window.setMenu(null);
+    window.setMenu(null);
   });
 }
 

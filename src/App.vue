@@ -226,7 +226,7 @@
                 <div>
                   码率：{{
                     musicMeta?.format.bitrate
-                      ? musicMeta?.format.bitrate / 1000 + "kbps"
+                      ? (musicMeta?.format.bitrate / 1000).toFixed(0) + "kbps"
                       : null
                   }}
                 </div>
@@ -236,6 +236,14 @@
                       ? musicMeta?.format.sampleRate / 1000 + "kHZ"
                       : null
                   }}
+                </div>
+                <div>
+                  格式：{{
+                    musicMeta?.format.codec ? musicMeta?.format.codec : null
+                  }}
+                </div>
+                <div v-if="musicMeta?.format.lossless !== undefined">
+                  无损：{{ musicMeta?.format.lossless ? "是" : "否" }}
                 </div>
                 <div>歌曲名称：{{ musicMeta?.common.title }}</div>
                 <div>
@@ -362,6 +370,7 @@ watch(musicMeta, (val) => {
   else {
     ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
   }
+  console.log(val);
 });
 //监听图片src变化
 watch(musicCoverUrl, () => {
@@ -1126,6 +1135,6 @@ main {
 
 .show-enter-active,
 .show-leave-active {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 </style>
