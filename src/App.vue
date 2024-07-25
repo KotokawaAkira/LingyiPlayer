@@ -370,7 +370,7 @@ watch(musicMeta, (val) => {
   else {
     ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
   }
-  console.log(val);
+  //console.log(val);
 });
 //监听图片src变化
 watch(musicCoverUrl, () => {
@@ -832,6 +832,11 @@ main {
     }
   }
   &-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     text-align: center;
     font-size: 1.5rem;
     max-width: 500px;
