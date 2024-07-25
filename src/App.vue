@@ -217,7 +217,12 @@
               </div>
               <div class="show-main-detail">
                 <div>
-                  文件：<span v-if="musicList && now !== -1">
+                  文件：<span
+                  title="在文件管理器中显示"
+                    v-if="musicList && now !== -1"
+                    class="file-path"
+                    @click="showInFolder(musicList[now].originPath)"
+                  >
                     {{
                       musicList?.length > 0 ? musicList[now].originPath : null
                     }}
@@ -777,6 +782,10 @@ function showFilePath(e: MouseEvent, filePath: string) {
   if (e.button === 2)
     dialog.showMessageBox({ title: "文件路径", message: filePath });
 }
+//在文件夹中显示
+function showInFolder(filePath: string) {
+  ipcRenderer.send("open-path", filePath);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -1097,6 +1106,14 @@ main {
         font-weight: 600;
       }
     }
+  }
+}
+.file-path {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    text-decoration: underline;
+    color: #4dafef;
   }
 }
 @keyframes circulateTranslate {

@@ -5,7 +5,7 @@
     "email": "accelert123@gmail.com"
   },
   "private": true,
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "dist-electron/main.js",
   "fileAssociations": [
     {

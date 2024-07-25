@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeImage } from "electron";
+import { app, BrowserWindow, ipcMain, nativeImage, shell } from "electron";
 import path from "path";
 //引入remoteMain
 import remoteMain from "@electron/remote/main";
@@ -75,7 +75,7 @@ if (!lock) {
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows.length === 0) createWindows();
 });
-app.on("open-file", (_event, originPath) => {
+app.on("open-file", (_event, originPath:string) => {
   if (
     !originPath.endsWith(".flac") ||
     !originPath.endsWith(".wav") ||
@@ -164,6 +164,10 @@ ipcMain.on("doGet3Color", (_event, color) => {
     colorList[i] = result.centroids[i];
   }
   window.webContents.send("get3Color", colorList);
+});
+//打开音乐文件文件夹
+ipcMain.on("open-path", (_event, filePath) => {
+  shell.showItemInFolder(filePath);
 });
 //控制 上一首
 function doPre() {
