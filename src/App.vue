@@ -218,7 +218,7 @@
               <div class="show-main-detail">
                 <div>
                   文件：<span
-                  title="在文件管理器中显示"
+                    title="在文件管理器中显示"
                     v-if="musicList && now !== -1"
                     class="file-path"
                     @click="showInFolder(musicList[now].originPath)"
@@ -231,16 +231,19 @@
                 <div>
                   码率：{{
                     musicMeta?.format.bitrate
-                      ? (musicMeta?.format.bitrate / 1000).toFixed(0) + "kbps"
+                      ? (musicMeta?.format.bitrate / 1000).toFixed(0) + " kbps"
                       : null
                   }}
                 </div>
                 <div>
                   采样率：{{
                     musicMeta?.format.sampleRate
-                      ? musicMeta?.format.sampleRate / 1000 + "kHZ"
+                      ? musicMeta?.format.sampleRate / 1000 + " kHZ"
                       : null
                   }}
+                </div>
+                <div v-if="musicMeta?.format.bitsPerSample">
+                  位深度：{{ musicMeta?.format.bitsPerSample + " bit"}}
                 </div>
                 <div>
                   格式：{{
@@ -375,7 +378,7 @@ watch(musicMeta, (val) => {
   else {
     ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
   }
-  //console.log(val);
+  console.log(val);
 });
 //监听图片src变化
 watch(musicCoverUrl, () => {
