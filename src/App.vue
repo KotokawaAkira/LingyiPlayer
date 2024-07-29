@@ -243,7 +243,7 @@
                   }}
                 </div>
                 <div v-if="musicMeta?.format.bitsPerSample">
-                  位深度：{{ musicMeta?.format.bitsPerSample + " bit"}}
+                  位深度：{{ musicMeta?.format.bitsPerSample + " bit" }}
                 </div>
                 <div>
                   格式：{{
@@ -714,7 +714,7 @@ function dropFile(e: DragEvent) {
   if (e.dataTransfer === null || e.dataTransfer.files.length === 0) return;
   const files = e.dataTransfer.files;
   //将文件格式更改为MusicFileInfo[];
-  const newList: MusicFileInfo[] = [];
+  let newList: MusicFileInfo[] = [];
   for (let i = 0; i < files.length; i++) {
     const type = files[i].name.slice(files[i].name.lastIndexOf(".") + 1);
     if (type === "mp3" || type === "flac" || type === "wav") {
@@ -723,6 +723,9 @@ function dropFile(e: DragEvent) {
         originPath: files[i].path,
         type: files[i].type,
       });
+    } else {
+      const result = getFilesAndFoldersInDir(files[i].path, []);
+      newList = result;
     }
   }
   loadFile(newList);
