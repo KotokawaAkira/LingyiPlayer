@@ -378,7 +378,7 @@ watch(musicMeta, (val) => {
   else {
     ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
   }
-  console.log(val);
+  // console.log(val);
 });
 //监听图片src变化
 watch(musicCoverUrl, () => {
