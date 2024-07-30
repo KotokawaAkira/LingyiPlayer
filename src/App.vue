@@ -326,8 +326,6 @@ const musicCoverUrl = ref<string>();
 const lastMusic = ref<string>();
 const showDialog = ref(false);
 
-let change = true;
-
 //监听音乐列表的变化
 watch(
   musicList,
@@ -460,7 +458,7 @@ function initialize() {
 function playerCoverinitiate() {
   if (!musicList.value) return;
 
-  if (musicList.value.length > 0 && change) {
+  if (musicList.value.length > 0) {
     let index = 0;
     for (let i = 0; i < musicList.value.length; i++) {
       if (musicList.value[i].active) {
@@ -474,7 +472,6 @@ function playerCoverinitiate() {
     }
     now.value = index;
   }
-  change = false;
 }
 //改变背景颜色
 function executeBackground() {
