@@ -651,10 +651,10 @@ function volumeIndicator() {
         border-radius: 10px;
         cursor: pointer;
         transition: height 0.3s ease;
+        overflow: hidden;
         &:hover {
           height: 15px;
         }
-        overflow: hidden;
       }
       &-in {
         height: 100%;
@@ -684,7 +684,6 @@ function volumeIndicator() {
     display: flex;
     justify-content: space-between;
     padding: 10px 5px;
-
     .play-controls {
       display: flex;
       justify-content: flex-start;
@@ -700,13 +699,13 @@ function volumeIndicator() {
         width: 2rem;
         transition: all 0.3s ease;
         cursor: pointer;
+        fill: var(--font_color);
         &-active {
           transform: scale(0.85);
         }
         &:active {
           transform: scale(0.85);
         }
-        fill: var(--font_color);
       }
       .play-pause {
         height: 2.5rem;
@@ -729,6 +728,7 @@ function volumeIndicator() {
     padding: 8px 0 10px 0;
     box-sizing: border-box;
     position: relative;
+    fill: var(--font_color);
     &-icon {
       height: 2rem;
       width: 2rem;
@@ -741,7 +741,6 @@ function volumeIndicator() {
         &:active {
           transform: scale(0.85);
         }
-        fill: var(--font_color);
       }
     }
     .volume-progress {

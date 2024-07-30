@@ -931,10 +931,10 @@ main {
         width: 2rem;
         transition: all 0.3s ease;
         cursor: pointer;
+        fill: var(--font_color);
         &:active {
           transform: scale(0.85);
         }
-        fill: var(--font_color);
         &-dangerous {
           &:hover {
             fill: #fa5353;
