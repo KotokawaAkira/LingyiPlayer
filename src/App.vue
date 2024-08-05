@@ -339,7 +339,7 @@ watch(
     for (let i = 0; i < val.length; i++) {
       checkList.value.push(false);
     }
-    if (!oldVal)
+    if (!oldVal && val.length > 0)
       //设置播放列表滚动到正在播放
       playListScroll(now.value);
   },
@@ -865,14 +865,14 @@ main {
 
 .side-window {
   position: fixed;
-  top: 25vh;
+  top: 50vh;
   right: 0;
   display: flex;
   align-items: center;
   transition: transform 0.5s ease;
-  transform: translate(calc(100% - 2rem));
+  transform: translate(calc(100% - 2rem), -50%);
   &-active {
-    transform: translate(0%);
+    transform: translate(0%, -50%);
   }
   .show-button {
     height: 2rem;
