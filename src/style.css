@@ -70,8 +70,9 @@ body {
   /* background-color: var(--bg_gradient1); */
   background-size: 600% 600%;
   transition: background 0.5s ease;
-  animation: gradientBG1 30s ease infinite alternate, gradientBG2 30s ease 30s infinite alternate,
-    gradientBG3 30s ease 60s infinite alternate;
+  animation: gradientBG1 45s ease infinite alternate,
+    gradientBG2 45s ease 45s infinite alternate,
+    gradientBG3 45s ease 90s infinite alternate;
 }
 img {
   display: block;

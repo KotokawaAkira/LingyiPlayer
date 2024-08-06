@@ -8,7 +8,7 @@ import { loadLyric } from "../src/request/LyricRequest";
 import { kmeans } from "ml-kmeans";
 import { MusicFileInfo } from "../src/type/Music";
 
-app.commandLine.appendSwitch("js-flags", "--expose-gc");
+//获取单例锁
 const lock = app.requestSingleInstanceLock();
 
 //初始化remoteMain
@@ -17,7 +17,6 @@ remoteMain.initialize();
 let window: BrowserWindow;
 
 const createWindows = () => {
-  // 检查是否是第二个实例
   window = new BrowserWindow({
     width: 1400,
     height: 800,
@@ -43,7 +42,7 @@ const createWindows = () => {
   //将window的webContents挂载到remoteMain
   remoteMain.enable(window.webContents);
 };
-
+// 检查是否是第二个实例
 if (!lock) {
   app.quit();
 } else {

@@ -356,7 +356,6 @@ function timeUpdate() {
   const p = props.player.currentTime / props.player.duration; //计算当前时间在总时长的占比
   if (current_time.value)
     musicCurrentTime.value = formatSeconds(props.player.currentTime);
-  // current_time.value.innerText = formatSeconds(props.player.currentTime); //更新当前时间
   if (progress.value) progress.value.style.width = `${p * 100}%`; //更新进度条进度
   if (props.player.paused) isPlaying.value = false;
   else isPlaying.value = true;

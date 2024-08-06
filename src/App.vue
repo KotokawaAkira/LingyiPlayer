@@ -378,7 +378,6 @@ watch(musicMeta, (val) => {
   else {
     ipcRenderer.send("doLoadCover", musicList.value[now.value].originPath);
   }
-  // console.log(val);
 });
 //监听图片src变化
 watch(musicCoverUrl, () => {
@@ -448,7 +447,7 @@ ipcRenderer.on("get3Color", (_event, color_list: number[][]) => {
 function initialize() {
   showSideWindow.value = getShowMusicListFromStorage();
   musicList.value = getMusicListFromStorage();
-  // nextTick(playerCoverinitiate);
+
   doSort();
   //拖入文件
   window.ondragover = (e) => e.preventDefault();
@@ -703,8 +702,6 @@ function removeButtonClick() {
       })
       .then((res) => {
         if (res.response === 0) removeFromMusicList();
-        // if (now.value === i && musicList.value && musicList.value.length > 0)
-        //   changeMusic(musicList.value[0], 0);
       });
 }
 //拖入文件
@@ -969,7 +966,6 @@ main {
         border-radius: 0.25rem;
       }
       &-item {
-        width: fit-content;
         min-width: 100%;
         list-style-type: none;
         font-size: 1.2rem;
