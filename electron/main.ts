@@ -33,6 +33,7 @@ const createWindows = () => {
   //如果打包 渲染index.html
   if (process.env.NODE_ENV !== "development") {
     window.loadFile(path.join(path.dirname(__dirname), "/dist/index.html"));
+    window.setMenu(null);
     // window.webContents.openDevTools();
   } else {
     //开发模式加载url
@@ -68,14 +69,13 @@ if (!lock) {
   //当app就绪 创建窗口
   app.whenReady().then(() => {
     createWindows();
-    window.setMenu(null);
   });
 }
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows.length === 0) createWindows();
 });
-app.on("open-file", (_event, originPath:string) => {
+app.on("open-file", (_event, originPath: string) => {
   if (
     !originPath.endsWith(".flac") ||
     !originPath.endsWith(".wav") ||

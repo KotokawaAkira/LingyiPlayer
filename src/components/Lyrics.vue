@@ -145,6 +145,8 @@ function lyricScroll(i: number) {
       flex-direction: column;
       justify-content: center;
       color: var(--font_color);
+      overflow: hidden;
+      white-space: nowrap;
     }
     .lyrics {
       margin: 15px 5px;

@@ -39,12 +39,14 @@
           </span>
         </div>
       </div>
-      <div class="lyrics-main">
-        <div class="terminal">
-          <audio v-show="false" ref="player" controls :src="musicSrcURL" />
+      <transition name="out">
+        <div class="lyrics-main" v-show="lyrics">
+          <div class="terminal">
+            <audio v-show="false" ref="player" controls :src="musicSrcURL" />
+          </div>
+          <Lyrics :lyrics :player :showTranslation />
         </div>
-        <Lyrics :lyrics :player :showTranslation />
-      </div>
+      </transition>
       <div
         :class="`side-window ${showSideWindow ? 'side-window-active' : 'null'}`"
       >
@@ -858,8 +860,7 @@ main {
 .lyrics-main {
   width: 50%;
   .terminal {
-    display: flex;
-    flex-direction: row;
+    position: fixed;
   }
 }
 
@@ -1163,5 +1164,21 @@ main {
 .show-enter-active,
 .show-leave-active {
   transition: all 0.3s ease-in-out;
+}
+.out-enter-from,
+.out-leave-to {
+  opacity: 0;
+  width: 0;
+}
+
+.out-enter-to,
+.out-leave-from {
+  opacity: 1;
+  width: 50%;
+}
+
+.out-enter-active,
+.out-leave-active {
+  transition: all 0.3s ease;
 }
 </style>
