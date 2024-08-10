@@ -38,6 +38,12 @@
             {{ musicFileName }}
           </span>
         </div>
+        <div
+          class="info-placeholder"
+          :hidden="musicList && musicList.length > 0"
+        >
+          请拖入音乐文件、文件夹，或点击右边箭头打开播放列表添加音乐
+        </div>
       </div>
       <transition name="out">
         <div class="lyrics-main" v-show="lyrics">
@@ -190,7 +196,13 @@
         </div>
       </div>
     </div>
-    <div class="controller-container">
+    <div
+      :class="`controller-container ${
+        musicList === undefined || musicList.length === 0
+          ? 'controller-container-hide'
+          : null
+      }`"
+    >
       <MusicController
         :player
         :totle="musicDuration"
@@ -571,6 +583,7 @@ function getLyric(musicPath: string) {
 }
 //更改音乐
 function changeMusic(item: MusicFileInfo | null, index: number) {
+  if (player.value) player.value.currentTime = 0;
   if (!musicList.value || musicList.value.length === 0) return;
   if (lastMusic.value === musicList.value[index].name || index === -1) return;
   //传递空值
@@ -610,6 +623,7 @@ function clearAll() {
   document.body.style.removeProperty("--bg_gradient1");
   musicSrcURL.value = undefined;
   musicCoverUrl.value = undefined;
+  if (player.value) player.value.currentTime = 0;
 }
 //全选
 function selectAll(val?: boolean) {
@@ -799,6 +813,7 @@ main {
   justify-content: space-between;
   align-items: center;
   flex-direction: column;
+  overflow: hidden;
   .info-section {
     display: flex;
     gap: 5%;
@@ -806,6 +821,15 @@ main {
     justify-content: center;
     width: 80%;
     height: 85%;
+    .info-placeholder {
+      color: var(--font_color);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.5rem;
+      max-width: 60%;
+    }
   }
 }
 .loading-cover {
@@ -968,7 +992,7 @@ main {
       &-item {
         min-width: 100%;
         list-style-type: none;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         user-select: none;
         cursor: pointer;
         transform-origin: 0 0;
@@ -1007,7 +1031,7 @@ main {
 
           &:checked::after {
             content: "";
-            background-color: var(--lyrics_color);
+            background-color: #232323;
           }
         }
         &-div {
@@ -1036,6 +1060,10 @@ main {
   justify-content: center;
   padding: 1rem 0;
   box-sizing: border-box;
+  transition: all 0.5s ease;
+  &-hide {
+    transform: translate(0, 100%);
+  }
 }
 .mask {
   position: fixed;
