@@ -892,9 +892,9 @@ main {
   display: flex;
   align-items: center;
   transition: transform 0.5s ease;
-  transform: translate(calc(100% - 2rem), -50.1%);
+  transform: translate(calc(100% - 2rem), -50%);
   &-active {
-    transform: translate(0%, -50.1%);
+    transform: translate(0%, -50%);
   }
   .show-button {
     height: 2rem;
