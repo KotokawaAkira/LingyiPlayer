@@ -924,9 +924,6 @@ main {
     overflow-y: auto;
     overflow-x: hidden;
     gap: 1rem;
-    &:hover {
-      filter: drop-shadow(0px 0px 5px var(--bg_progress));
-    }
     &:hover .music-list-overlay {
       opacity: 1;
     }
