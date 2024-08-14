@@ -1,4 +1,11 @@
-import { app, BrowserWindow, ipcMain, nativeImage, shell } from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  nativeImage,
+  shell,
+} from "electron";
 import path from "path";
 //引入remoteMain
 import remoteMain from "@electron/remote/main";
@@ -46,46 +53,31 @@ const createWindows = () => {
 if (!lock) {
   app.quit();
 } else {
-  app.on("second-instance", (_event, commandLine) => {
+  //当app就绪 创建窗口
+  app.whenReady().then(() => {
+    createWindows();
+  });
+  app.on("second-instance", (_event, argv) => {
     if (window) {
       if (window.isMinimized()) window.restore();
       window.focus();
     }
-
+    // let lines = process.argv.reduce((pre, cur) => pre + "..." + cur);
+    // dialog.showMessageBox(window, {
+    //   message: lines,
+    // });
     // 当试图运行第二个实例时，这个事件会被触发
-    const paths = commandLine.filter(
-      (item) =>
-        item.endsWith(".flac") || item.endsWith(".wav") || item.endsWith(".mp3")
-    );
-    const music_list: MusicFileInfo[] = [];
-    for (let i = 0; i < paths.length; i++) {
-      const name = path.basename(paths[i]);
-      const type = path.extname(paths[i]);
-      music_list.push({ type, name, originPath: paths[i] });
-    }
-    window.webContents.send("open-file", music_list);
-  });
-  //当app就绪 创建窗口
-  app.whenReady().then(() => {
-    createWindows();
+    sendMusic(argv);
   });
 }
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows.length === 0) createWindows();
 });
-app.on("open-file", (_event, originPath: string) => {
-  if (
-    !originPath.endsWith(".flac") ||
-    !originPath.endsWith(".wav") ||
-    !originPath.endsWith(".mp3")
-  )
-    return;
-  const name = path.basename(originPath);
-  const type = path.extname(originPath);
-  window.webContents.send("open-file", { type, name, originPath });
+app.on("open-file", (event, originPath: string) => {
+  event.preventDefault();
+  sendMusic([originPath]);
 });
-
 //关闭窗口
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
@@ -217,4 +209,17 @@ function setTumbarButtons(args: { isPlaying: boolean }) {
     );
   }
   window.setThumbarButtons(buttons);
+}
+function sendMusic(paths: string[]) {
+  const list = paths.filter(
+    (item) =>
+      item.endsWith(".flac") || item.endsWith(".wav") || item.endsWith(".mp3")
+  );
+  const music_list: MusicFileInfo[] = [];
+  for (let i = 0; i < list.length; i++) {
+    const name = path.basename(list[i]);
+    const type = path.extname(list[i]);
+    music_list.push({ type, name, originPath: list[i] });
+  }
+  window.webContents.send("open-file", music_list);
 }
