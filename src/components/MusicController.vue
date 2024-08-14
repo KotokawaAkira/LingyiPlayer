@@ -278,7 +278,6 @@ const props = defineProps<{
   changeMusic: (item: MusicFileInfo, index: number) => void;
   now: number;
   changeShowTranslate: { isShow: boolean; changeShow: () => void };
-  playListScroll: (index: number) => void;
   showInfo: () => void;
 }>();
 import { ref, watch } from "vue";
@@ -432,7 +431,6 @@ function preMusic(now: number) {
     index = now - 1;
     props.changeMusic(props.musicList[index], index);
   }
-  props.playListScroll(index);
 }
 //下一首
 function nextMusic(now: number) {
@@ -459,7 +457,6 @@ function listPlay(now: number) {
     index += 1;
     props.changeMusic(props.musicList[index], index);
   }
-  props.playListScroll(index);
 }
 //单曲循环
 function circulatePlay(now: number) {
@@ -475,7 +472,6 @@ function randomPlay(now: number) {
     return;
   }
   props.changeMusic(props.musicList[index], index);
-  props.playListScroll(index);
 }
 //切换下一首模式
 function switchPlayMode() {

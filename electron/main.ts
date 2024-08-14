@@ -1,7 +1,6 @@
 import {
   app,
   BrowserWindow,
-  dialog,
   ipcMain,
   nativeImage,
   shell,
@@ -57,20 +56,15 @@ if (!lock) {
   app.whenReady().then(() => {
     createWindows();
   });
+  // 当试图运行第二个实例时，这个事件会被触发
   app.on("second-instance", (_event, argv) => {
     if (window) {
       if (window.isMinimized()) window.restore();
       window.focus();
     }
-    // let lines = process.argv.reduce((pre, cur) => pre + "..." + cur);
-    // dialog.showMessageBox(window, {
-    //   message: lines,
-    // });
-    // 当试图运行第二个实例时，这个事件会被触发
     sendMusic(argv);
   });
 }
-
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows.length === 0) createWindows();
 });
@@ -82,6 +76,8 @@ app.on("open-file", (event, originPath: string) => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
+//以该应用打开文件 触发的事件
+ipcMain.on("open-on-app", () => sendMusic(process.argv));
 //加载歌词
 ipcMain.on("doLoadLyric", async (_event, args: string) => {
   let res: String | undefined = await loadLyric(args);

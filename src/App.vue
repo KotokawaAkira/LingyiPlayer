@@ -213,7 +213,6 @@
           isShow: showTranslation,
           changeShow: changeShowTranslate,
         }"
-        :playListScroll
         :showInfo
       />
     </div>
@@ -466,6 +465,8 @@ function initialize() {
   window.ondrop = dropFile;
 
   setTimeout(() => (isLoading.value = false), 1000);
+  //以该应用打开文件
+  ipcRenderer.send("open-on-app");
 }
 //初始化播放界面
 function playerCoverinitiate() {
@@ -595,6 +596,7 @@ function changeMusic(item: MusicFileInfo | null, index: number) {
   }
   ipcRenderer.send("doLoadMusic", { originPath: item.originPath, index });
   if (player.value) player.value.oncanplay = () => player.value?.play();
+  playListScroll(index);
 }
 //储存当前播放列表
 function saveMusicListInStorage(val: MusicFileInfo[]) {
@@ -776,17 +778,19 @@ function changeTitle() {
 }
 //刷新播放列表scroll高度
 function playListScroll(index: number) {
-  let top = 0;
-  const list_container = document.querySelector(
-    ".music-list-container"
-  ) as HTMLUListElement;
-  const list = list_container.children;
-  const active_item = list[index] as HTMLLIElement;
-  top = active_item.offsetTop - active_item.clientHeight;
-  if (index === 0) top = 0;
-  list_container.scrollTo({
-    left: 0,
-    top,
+  nextTick(() => {
+    let top = 0;
+    const list_container = document.querySelector(
+      ".music-list-container"
+    ) as HTMLUListElement;
+    const list = list_container.children;
+    const active_item = list[index] as HTMLLIElement;
+    top = active_item.offsetTop - active_item.clientHeight;
+    if (index === 0) top = 0;
+    list_container.scrollTo({
+      left: 0,
+      top,
+    });
   });
 }
 //显示歌曲信息
