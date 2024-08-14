@@ -464,9 +464,11 @@ function initialize() {
   window.ondragover = (e) => e.preventDefault();
   window.ondrop = dropFile;
 
-  setTimeout(() => (isLoading.value = false), 1000);
-  //以该应用打开文件
-  ipcRenderer.send("open-on-app");
+  setTimeout(() => {
+    isLoading.value = false;
+    //以该应用打开文件
+    ipcRenderer.send("open-on-app");
+  }, 1000);
 }
 //初始化播放界面
 function playerCoverinitiate() {
