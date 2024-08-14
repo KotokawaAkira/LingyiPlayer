@@ -213,6 +213,7 @@
           isShow: showTranslation,
           changeShow: changeShowTranslate,
         }"
+        :playListScroll
         :showInfo
       />
     </div>
@@ -468,6 +469,7 @@ function initialize() {
     isLoading.value = false;
     //以该应用打开文件
     ipcRenderer.send("open-on-app");
+    setTimeout(() => playListScroll(now.value), 500);
   }, 1000);
 }
 //初始化播放界面
@@ -598,7 +600,6 @@ function changeMusic(item: MusicFileInfo | null, index: number) {
   }
   ipcRenderer.send("doLoadMusic", { originPath: item.originPath, index });
   if (player.value) player.value.oncanplay = () => player.value?.play();
-  playListScroll(index);
 }
 //储存当前播放列表
 function saveMusicListInStorage(val: MusicFileInfo[]) {
