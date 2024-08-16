@@ -378,10 +378,17 @@ watch(musicSrcURL, (_newVal, oldVal) => {
   if (oldVal) URL.revokeObjectURL(oldVal);
 });
 //监听meta变化 设置图片src
-watch(musicMeta, (val) => {
+watch(musicMeta, (val, oldVal) => {
   //设置窗口名称
   changeTitle();
-  if (!val) return;
+  if (
+    !val ||
+    (val.common.title === oldVal?.common.title &&
+      val.format.codec === oldVal?.format.codec &&
+      val.common.artist === oldVal?.common.artist)
+  )
+    return;
+
   if (!musicList.value || musicList.value.length === 0) return;
   if (val.common.picture)
     musicCoverUrl.value = `data:${
@@ -392,9 +399,13 @@ watch(musicMeta, (val) => {
   }
 });
 //监听图片src变化
-watch(musicCoverUrl, () => {
-  executeBackground();
-});
+watch(
+  musicCoverUrl,
+  (val) => {
+    if (val) executeBackground();
+  },
+  { immediate: true }
+);
 
 initialize();
 
@@ -436,7 +447,7 @@ ipcRenderer.on("open-file", (_event, args: MusicFileInfo[]) => {
 //监听主进程加载专辑封面
 ipcRenderer.on("loadCover", (_event, args: { buffer: string | null }) => {
   if (args.buffer === null) {
-    musicCoverUrl.value = undefined;
+    musicCoverUrl.value = icon;
     return;
   }
   musicCoverUrl.value = `data:image/png;base64,${args.buffer}`;
@@ -496,11 +507,14 @@ function executeBackground() {
   //设置背景主题色
   nextTick(() => {
     if (pictrue.value) {
-      const rgb = colorfulImg(pictrue.value);
-      const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
-      document.body.style.setProperty("--lyrics_color", color_complement);
-      const color_list = get3Colors(pictrue.value);
-      ipcRenderer.send("doGet3Color", color_list);
+      pictrue.value.onload = () => {
+        const rgb = colorfulImg(pictrue.value!);
+        if (rgb.b === 0 && rgb.g === 0 && rgb.r === 0) return;
+        const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
+        document.body.style.setProperty("--lyrics_color", color_complement);
+        const color_list = get3Colors(pictrue.value!);
+        ipcRenderer.send("doGet3Color", color_list);
+      };
     }
   });
 }
