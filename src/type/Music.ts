@@ -2,6 +2,7 @@ type MusicBuffer = {
   buffer: Buffer;
   originPath: string;
   index: number;
+  size: number;
 };
 type MusicFileInfo = {
   type: string;

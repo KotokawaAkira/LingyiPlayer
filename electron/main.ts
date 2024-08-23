@@ -1,10 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  nativeImage,
-  shell,
-} from "electron";
+import { app, BrowserWindow, ipcMain, nativeImage, shell } from "electron";
 import path from "path";
 //引入remoteMain
 import remoteMain from "@electron/remote/main";
@@ -94,6 +88,7 @@ ipcMain.on(
       buffer: res,
       originPath: args.originPath,
       index: args.index,
+      size: res?.buffer.byteLength,
     });
     res = null;
   }

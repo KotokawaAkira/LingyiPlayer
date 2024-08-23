@@ -243,6 +243,13 @@
                   </span>
                 </div>
                 <div>
+                  大小：{{
+                    musicSize > 1048576
+                      ? (musicSize / 1024 / 1024).toFixed(1) + " Mb"
+                      : (musicSize / 1024).toFixed(1) + " Kb"
+                  }}
+                </div>
+                <div>
                   码率：{{
                     musicMeta?.format.bitrate
                       ? (musicMeta?.format.bitrate / 1000).toFixed(0) + " kbps"
@@ -339,6 +346,7 @@ const isLoading = ref(true);
 const musicCoverUrl = ref<string>();
 const lastMusic = ref<string>();
 const showDialog = ref(false);
+const musicSize = ref(0);
 
 //监听音乐列表的变化
 watch(
@@ -423,6 +431,7 @@ ipcRenderer.on("loadMusic", (_event, args: MusicBuffer) => {
   parseMeta(args.buffer).then((meta) => {
     musicMeta.value = meta;
     if (meta.format.duration) musicDuration.value = meta.format.duration;
+    musicSize.value = args.size;
   });
   //设置当前正在播放状态 用于保存上次播放记录
   for (let i = 0; i < musicList.value!.length; i++) {
@@ -1156,7 +1165,6 @@ main {
 }
 .file-path {
   cursor: pointer;
-  transition: all 0.3s ease;
   &:hover {
     text-decoration: underline;
     color: #4dafef;
