@@ -281,7 +281,7 @@ const props = defineProps<{
   playListScroll: (index: number) => void;
   showInfo: () => void;
 }>();
-import { nextTick, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { formatSeconds } from "../tools/TimeTransform";
 import { MusicFileInfo } from "../type/Music";
 import { ipcRenderer } from "electron";
