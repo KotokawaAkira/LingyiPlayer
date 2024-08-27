@@ -281,7 +281,7 @@ const props = defineProps<{
   playListScroll: (index: number) => void;
   showInfo: () => void;
 }>();
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { formatSeconds } from "../tools/TimeTransform";
 import { MusicFileInfo } from "../type/Music";
 import { ipcRenderer } from "electron";
@@ -309,6 +309,7 @@ watch(
     val.addEventListener("timeupdate", timeUpdate);
     val.onended = () => nextMusic(props.now);
     val.onvolumechange = volumeChange;
+    val.onpause = playerPaued;
     const volume_num = getVolume();
     val.volume = volume_num;
     volumeChange();
@@ -492,6 +493,15 @@ function switchPlayMode() {
   }
   savePlayMode();
 }
+//暂停
+function playerPaued() {
+  if (!props.player) return;
+  const p = props.player.currentTime / props.player.duration;
+  ipcRenderer.send("progressUpdate", {
+    progress: p,
+    options: { mode: "paused" },
+  });
+}
 /**音量进度条**/
 //点击音量轴
 function volumeClick(e: MouseEvent) {
@@ -562,7 +572,9 @@ function getVolume() {
   return volume_num;
 }
 //状态栏进度条更新
-function doProgressUpdate(progress: number) {
+function doProgressUpdate(p: number) {
+  const progress = { progress: p, options: { mode: "normal" } };
+  if (isNaN(p)) progress.options.mode = "none";
   ipcRenderer.send("progressUpdate", progress);
 }
 //向main进程传出 音乐控制函数

@@ -7,6 +7,7 @@ import { loadCover, loadMusic } from "../src/request/MusicRequest";
 import { loadLyric } from "../src/request/LyricRequest";
 import { kmeans } from "ml-kmeans";
 import { MusicFileInfo } from "../src/type/Music";
+import { PlayerProgress } from "../src/type/Player";
 
 //获取单例锁
 const lock = app.requestSingleInstanceLock();
@@ -100,8 +101,8 @@ ipcMain.on("doLoadCover", async (_event, args: string) => {
   res = null;
 });
 //音乐进度条
-ipcMain.on("progressUpdate", (_event, progress: number) => {
-  window.setProgressBar(progress);
+ipcMain.on("progressUpdate", (_event,playerProgress:PlayerProgress) => {
+  window.setProgressBar(playerProgress.progress,playerProgress.options);
 });
 //更改窗口名称
 ipcMain.on("titleChange", (_event, args: string) => {
