@@ -810,6 +810,7 @@ function playListScroll(index: number) {
       ".music-list-container"
     ) as HTMLUListElement;
     const list = list_container.children;
+    if (!list || list.length === 0) return;
     const active_item = list[index] as HTMLLIElement;
     top = active_item.offsetTop - active_item.clientHeight;
     if (index === 0) top = 0;
