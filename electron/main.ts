@@ -38,7 +38,7 @@ const createWindows = () => {
   } else {
     //开发模式加载url
     window.loadURL("http://localhost:4396");
-    // window.webContents.openDevTools();
+    window.webContents.openDevTools();
   }
   //将window的webContents挂载到remoteMain
   remoteMain.enable(window.webContents);

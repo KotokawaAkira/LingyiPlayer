@@ -906,6 +906,7 @@ main {
     text-align: center;
     font-size: 1.5rem;
     max-width: 500px;
+    width: 30vw;
     color: var(--lyrics_color);
   }
 }
