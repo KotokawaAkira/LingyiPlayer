@@ -1032,12 +1032,13 @@ main {
         align-items: center;
         gap: 1.5rem;
         border-radius: 0.5rem;
-        transition: background-color .3s ease;
+        transition: background-color 0.5s ease, color 0.1s ease;
         &-active {
           color: var(--lyrics_color);
           animation: circulateTranslate 15s linear infinite;
         }
-        &:hover{
+        &:hover {
+          color: var(--lyrics_color);
           background-color: var(--bg_control);
         }
         input[type="checkbox"] {
@@ -1078,9 +1079,6 @@ main {
             transition: all 0.3s ease;
             display: inline-block;
             transition: color 0.3s ease;
-            &-hover:hover {
-              color: var(--lyrics_color);
-            }
           }
         }
       }
