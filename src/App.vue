@@ -1031,9 +1031,14 @@ main {
         display: flex;
         align-items: center;
         gap: 1.5rem;
+        border-radius: 0.5rem;
+        transition: background-color .3s ease;
         &-active {
           color: var(--lyrics_color);
           animation: circulateTranslate 15s linear infinite;
+        }
+        &:hover{
+          background-color: var(--bg_control);
         }
         input[type="checkbox"] {
           cursor: pointer;
