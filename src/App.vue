@@ -1038,7 +1038,6 @@ main {
           animation: circulateTranslate 15s linear infinite;
         }
         &:hover {
-          color: var(--lyrics_color);
           background-color: var(--bg_control);
         }
         input[type="checkbox"] {
