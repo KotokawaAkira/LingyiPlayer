@@ -8,13 +8,15 @@
     <div class="info-section">
       <div class="meta-container">
         <div class="meta-container-main">
-          <img
-            v-if="musicCoverUrl"
-            :key="musicFileName"
-            ref="pictrue"
-            :src="musicCoverUrl"
-            crossorigin="anonymous"
-          />
+          <transition name="fade_title" mode="in-out">
+            <img
+              v-if="musicCoverUrl"
+              :key="musicFileName"
+              ref="pictrue"
+              :src="musicCoverUrl"
+              crossorigin="anonymous"
+            />
+          </transition>
         </div>
         <div
           class="meta-container-title"
@@ -890,11 +892,13 @@ main {
     width: 30vw;
     max-width: 500px;
     min-width: 300px;
+    position: relative;
     img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       user-select: none;
+      position: absolute;
     }
   }
   &-title {
@@ -1202,6 +1206,18 @@ main {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
+}
+.fade_title-enter-from,
+.fade_title-leave-to {
+  opacity: 0;
+}
+.fade_title-enter-to,
+.fade_title-leave-from {
+  opacity: 1;
+}
+.fade_title-enter-active,
+.fade_title-leave-active {
+  transition: opacity .3s ease;
 }
 .show-enter-from,
 .show-leave-to {
