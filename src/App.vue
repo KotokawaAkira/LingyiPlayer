@@ -911,6 +911,7 @@ main {
     font-size: 1.5rem;
     max-width: 500px;
     width: 30vw;
+    min-height: 4.5rem;
     color: var(--lyrics_color);
   }
 }
@@ -1217,7 +1218,7 @@ main {
 }
 .fade_title-enter-active,
 .fade_title-leave-active {
-  transition: opacity .3s ease;
+  transition: opacity 0.3s ease;
 }
 .show-enter-from,
 .show-leave-to {
