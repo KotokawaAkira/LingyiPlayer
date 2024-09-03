@@ -16,7 +16,8 @@ async function loadMusic(filePath: string) {
 function getFilesAndFoldersInDir(filePath: string, list: MusicFileInfo[]) {
   const items = fs.readdirSync(filePath);
   items.forEach((item) => {
-    const itemfilePath = `${filePath}/${item}`;
+    let itemfilePath = `${filePath}/${item}`;
+    if (process.platform !== "darwin") itemfilePath = `${filePath}\\${item}`;
     const stat = fs.statSync(itemfilePath);
     if (stat.isDirectory()) {
       getFilesAndFoldersInDir(itemfilePath, list);
