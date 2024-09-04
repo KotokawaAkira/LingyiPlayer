@@ -613,9 +613,9 @@ function getLyric(musicPath: string) {
 }
 //更改音乐
 function changeMusic(item: MusicFileInfo | null, index: number) {
-  if (player.value) player.value.currentTime = 0;
   if (!musicList.value || musicList.value.length === 0) return;
   if (lastMusic.value === musicList.value[index].name || index === -1) return;
+  if (player.value) player.value.currentTime = 0;
   //传递空值
   if (!item) {
     musicMeta.value = undefined;
