@@ -106,6 +106,24 @@
           </div>
           <div
             style="height: 2rem; width: 2rem"
+            :title="lumin ? '关闭流光' : '开启流光'"
+            @click="switchLumin"
+          >
+            <svg
+              :class="`play-controls-icon ${
+                lumin ? 'play-controls-icon-lumin-active' : null
+              }`"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <rect fill="transparent" width="24" height="24" />
+              <path
+                d="M19.54,5.08A10.61,10.61,0,0,0,11.91,2h0a10,10,0,0,0-.05,20h0a2.58,2.58,0,0,0,2.53-1.89,2.52,2.52,0,0,0-.57-2.28.5.5,0,0,1,.37-.83h1.65A6.15,6.15,0,0,0,22,11.33,8.48,8.48,0,0,0,19.54,5.08ZM6.84,14.74a1.5,1.5,0,1,1,.4-2.08A1.49,1.49,0,0,1,6.84,14.74ZM8.3,9.25a1.5,1.5,0,1,1-.55-2A1.5,1.5,0,0,1,8.3,9.25ZM11,7a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,11,7Zm5.75.8a1.5,1.5,0,1,1,.55-2A1.5,1.5,0,0,1,16.75,7.8Z"
+              />
+            </svg>
+          </div>
+          <div
+            style="height: 2rem; width: 2rem"
             title="翻译"
             @click="changeShowTranslate.changeShow"
           >
@@ -298,6 +316,7 @@ const volume = ref(0);
 const playMode = ref<PlayMode>({ type: 0, label: "列表循环" });
 const keydownActive = ref(false);
 const showIndicator = ref(false);
+const lumin = ref(false);
 
 let lastTime = 0;
 let timer: string | number | NodeJS.Timeout | undefined;
@@ -319,7 +338,16 @@ doSetTumbarButton();
 watch(isPlaying, () => {
   doSetTumbarButton();
 });
-
+watch(lumin, (val) => {
+  if (val) {
+    document.body.classList.add("lumin");
+    document.body.classList.remove("static");
+  } else {
+    document.body.classList.remove("lumin");
+    document.body.classList.add("static");
+  }
+  localStorage.setItem("lumin", JSON.stringify(val));
+});
 initialize();
 
 function initialize() {
@@ -342,6 +370,9 @@ function initialize() {
   //设置键盘事件
   window.onkeydown = keyboardDown;
   window.onkeyup = keyboardUp;
+  //读取流光效果记录
+  const isLumin = localStorage.getItem("lumin");
+  if (isLumin) lumin.value = JSON.parse(isLumin);
 }
 //静音事件
 function mute() {
@@ -632,6 +663,10 @@ function volumeIndicator() {
   clearTimeout(timer);
   timer = setTimeout(() => (showIndicator.value = false), 2000);
 }
+//切换流光效果
+function switchLumin() {
+  lumin.value = !lumin.value;
+}
 </script>
 
 <style lang="scss">
@@ -709,6 +744,7 @@ function volumeIndicator() {
         height: 2rem;
         width: 2rem;
         transition: all 0.3s ease;
+        border-radius: 0.25rem;
         cursor: pointer;
         fill: var(--font_color);
         &-active {
@@ -716,6 +752,9 @@ function volumeIndicator() {
         }
         &:active {
           transform: scale(0.85);
+        }
+        &-lumin-active {
+          background-color: var(--lumin_bg);
         }
       }
       .play-pause {

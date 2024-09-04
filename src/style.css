@@ -44,6 +44,7 @@
   --bg_progress_active: #d4d4d4;
   --side_window_bg: #424242;
   --bg_lyrics_hover: #64646483;
+  --lumin_bg:#424242af;
 }
 
 a {
@@ -61,15 +62,19 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  transition: background 0.5s ease;
+}
+.static {
+  background-color: var(--bg_gradient0);
+}
+.lumin {
   background: linear-gradient(
     -135deg,
     var(--bg_gradient1),
     var(--bg_gradient2),
     var(--bg_gradient0)
   );
-  /* background-color: var(--bg_gradient1); */
   background-size: 600% 600%;
-  transition: background 0.5s ease;
   animation: gradientBG1 45s ease infinite alternate,
     gradientBG2 45s ease 45s infinite alternate,
     gradientBG3 45s ease 90s infinite alternate;
@@ -164,6 +169,7 @@ svg:hover {
     --lyrics_color_active: #242424;
     --side_window_bg: #e3e3e3;
     --bg_lyrics_hover: #dcdcdc88;
+    --lumin_bg:#e3e3e3af;
   }
   a:hover {
     color: #747bff;
