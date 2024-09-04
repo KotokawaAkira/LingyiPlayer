@@ -17,7 +17,7 @@ function getFilesAndFoldersInDir(filePath: string, list: MusicFileInfo[]) {
   const items = fs.readdirSync(filePath);
   items.forEach((item) => {
     let itemfilePath = `${filePath}/${item}`;
-    if (process.platform !== "darwin") itemfilePath = `${filePath}\\${item}`;
+    if (process.platform === "win32") itemfilePath = `${filePath}\\${item}`;
     const stat = fs.statSync(itemfilePath);
     if (stat.isDirectory()) {
       getFilesAndFoldersInDir(itemfilePath, list);
