@@ -45,6 +45,7 @@
   --side_window_bg: #424242;
   --bg_lyrics_hover: #64646483;
   --lumin_bg:#424242af;
+  --side_window_item_hover:#5e5e5e;
 }
 
 a {
@@ -167,9 +168,10 @@ svg:hover {
     --bg_progress_active: #0b0b0b;
     --lyrics_color: #fff;
     --lyrics_color_active: #242424;
-    --side_window_bg: #e3e3e3;
+    --side_window_bg: #d8d8d8;
     --bg_lyrics_hover: #dcdcdc88;
     --lumin_bg:#e3e3e3af;
+    --side_window_item_hover:#ececec;
   }
   a:hover {
     color: #747bff;

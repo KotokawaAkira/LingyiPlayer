@@ -784,7 +784,8 @@ function loadFile(list: MusicFileInfo[]) {
 
     if (list_offset !== -1)
       changeMusic(musicList.value[list_offset], list_offset);
-    playListScroll(now.value);
+
+    setTimeout(()=>playListScroll(now.value),500);
   }
 }
 //更改窗口名称
@@ -1044,7 +1045,7 @@ main {
           animation: circulateTranslate 15s linear infinite;
         }
         &:hover {
-          background-color: var(--bg_control);
+          background-color: var(--side_window_item_hover);
         }
         input[type="checkbox"] {
           cursor: pointer;
