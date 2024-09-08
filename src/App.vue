@@ -784,6 +784,7 @@ function loadFile(list: MusicFileInfo[]) {
 
     if (list_offset !== -1)
       changeMusic(musicList.value[list_offset], list_offset);
+    playListScroll(now.value);
   }
 }
 //更改窗口名称
