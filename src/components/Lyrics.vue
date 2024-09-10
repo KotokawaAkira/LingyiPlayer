@@ -6,6 +6,7 @@
         v-if="props.lyrics"
         :class="`lyrics ${index === i ? 'lyrics-active' : null}`"
         v-for="lyric,i in props.lyrics!"
+        :key="lyric.words + i"
         :data-time="lyric.time"
         @click="onLyricClicked(i)"
       >
@@ -69,6 +70,7 @@ function setPlayer() {
         });
       }
     };
+    window.onresize = () => lyricScroll(index.value);
   }
 }
 function onLyricClicked(i: number) {
@@ -126,6 +128,16 @@ function lyricScroll(i: number) {
     height: 70vh;
     width: 100%;
     overflow: scroll;
+    user-select: none;
+    mask-image: linear-gradient(
+      180deg,
+      hsla(0, 0%, 100%, 0),
+      hsla(0, 0%, 100%, 0.6) 15%,
+      #fff 25%,
+      #fff 75%,
+      hsla(0, 0%, 100%, 0.6) 85%,
+      hsla(0, 0%, 100%, 0)
+    );
     -webkit-mask-image: linear-gradient(
       180deg,
       hsla(0, 0%, 100%, 0),
@@ -186,7 +198,7 @@ function lyricScroll(i: number) {
       &-placeholder {
         width: 100%;
         &-top {
-          height: 15%;
+          height: 10%;
         }
         &-btm {
           height: 72%;

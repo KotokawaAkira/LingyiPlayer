@@ -326,7 +326,7 @@ watch(
   (val) => {
     if (!val) return;
     val.addEventListener("timeupdate", timeUpdate);
-    val.onended = () => nextMusic(props.now);
+    val.onended = musicEnd;
     val.onvolumechange = volumeChange;
     val.onpause = playerPaued;
     const volume_num = getVolume();
@@ -666,6 +666,11 @@ function volumeIndicator() {
 //切换流光效果
 function switchLumin() {
   lumin.value = !lumin.value;
+}
+//音乐结束
+function musicEnd() {
+  props.player?.pause();
+  nextMusic(props.now);
 }
 </script>
 

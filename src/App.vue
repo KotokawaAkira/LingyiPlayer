@@ -523,6 +523,10 @@ function executeBackground() {
         if (rgb.b === 0 && rgb.g === 0 && rgb.r === 0) return;
         const color_complement = colorComplement(rgb.r, rgb.g, rgb.b);
         document.body.style.setProperty("--lyrics_color", color_complement);
+        document.body.style.setProperty(
+          "--bg_static",
+          `rgb(${rgb.r},${rgb.g},${rgb.b})`
+        );
         const color_list = get3Colors(pictrue.value!);
         ipcRenderer.send("doGet3Color", color_list);
       };
@@ -648,9 +652,9 @@ function clearAll() {
   musicFileName.value = "";
   musicMeta.value = undefined;
   lyrics.value = undefined;
+  document.body.style.removeProperty("--bg_gradient0");
   document.body.style.removeProperty("--bg_gradient1");
-  document.body.style.removeProperty("--bg_gradient1");
-  document.body.style.removeProperty("--bg_gradient1");
+  document.body.style.removeProperty("--bg_gradient2");
   musicSrcURL.value = undefined;
   musicCoverUrl.value = undefined;
   if (player.value) player.value.currentTime = 0;
@@ -785,7 +789,7 @@ function loadFile(list: MusicFileInfo[]) {
     if (list_offset !== -1)
       changeMusic(musicList.value[list_offset], list_offset);
 
-    setTimeout(()=>playListScroll(now.value),500);
+    setTimeout(() => playListScroll(now.value), 500);
   }
 }
 //更改窗口名称
@@ -908,6 +912,7 @@ main {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     text-align: center;
     font-size: 1.5rem;
