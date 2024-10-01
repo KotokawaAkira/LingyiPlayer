@@ -1,6 +1,8 @@
 <template>
   <div class="lyrics-body">
-    <div class="lyric-container">
+    <div
+      :class="`lyric-container ${isLongLyrics ? 'lyric-container-long' : null}`"
+    >
       <div v-if="props.lyrics" class="lyrics-placeholder-top"></div>
       <div
         v-if="props.lyrics"
@@ -41,9 +43,14 @@ const props = defineProps<{
   showTranslation: boolean;
 }>();
 const index = ref<number>(0);
+const isLongLyrics = ref(true);
+
 let lyricsDom: NodeListOf<HTMLDivElement>;
 let lyricContainerDom: HTMLDivElement | null;
 let unLocked = true;
+let lyricsTimer: null | NodeJS.Timeout = null;
+
+initialize();
 
 watch(() => props.player, setPlayer);
 watch(() => props.lyrics, getLyricDom);
@@ -57,6 +64,12 @@ watch(
     });
   }
 );
+
+//初始化
+function initialize() {
+  document.documentElement.addEventListener("mouseenter", setLongLyrics);
+  document.documentElement.addEventListener("mouseleave", setDefaultLyrics);
+}
 
 function setPlayer() {
   if (props.player) {
@@ -119,23 +132,39 @@ function lyricScroll(i: number) {
       lyricContainerDom.scrollTo({ left: 0, top: 0, behavior: "smooth" });
   }
 }
+function setLongLyrics() {
+  if (lyricsTimer) {
+    clearTimeout(lyricsTimer);
+    lyricsTimer = null;
+  }
+  isLongLyrics.value = false;
+}
+function setDefaultLyrics() {
+  if (lyricsTimer) clearTimeout(lyricsTimer);
+  lyricsTimer = setTimeout(() => {
+    isLongLyrics.value = true;
+    lyricsTimer = null;
+    lyricScroll(index.value);
+  }, 5000);
+}
 </script>
 <style lang="scss">
 .lyrics-body {
   .lyric-container {
     margin: 0 auto;
     position: relative;
-    height: 70vh;
+    height: 95vh;
     width: 100%;
     overflow: scroll;
     user-select: none;
+    transition: height 0.5s ease;
     mask-image: linear-gradient(
       180deg,
       hsla(0, 0%, 100%, 0),
       hsla(0, 0%, 100%, 0.6) 15%,
       #fff 25%,
       #fff 75%,
-      hsla(0, 0%, 100%, 0.6) 85%,
+      hsla(0, 0%, 100%, 0.6) 60%,
       hsla(0, 0%, 100%, 0)
     );
     -webkit-mask-image: linear-gradient(
@@ -144,11 +173,22 @@ function lyricScroll(i: number) {
       hsla(0, 0%, 100%, 0.6) 15%,
       #fff 25%,
       #fff 75%,
-      hsla(0, 0%, 100%, 0.6) 85%,
+      hsla(0, 0%, 100%, 0.6) 70%,
       hsla(0, 0%, 100%, 0)
     );
     &::-webkit-scrollbar {
       display: none;
+    }
+    &-long {
+      mask-image: linear-gradient(
+      180deg,
+      hsla(0, 0%, 100%, 0),
+      hsla(0, 0%, 100%, 0.6) 15%,
+      #fff 25%,
+      #fff 75%,
+      hsla(0, 0%, 100%, 0.6) 85%,
+      hsla(0, 0%, 100%, 0)
+    );
     }
     .no-lyrics {
       font-size: 2rem;

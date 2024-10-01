@@ -200,7 +200,7 @@
     </div>
     <div
       :class="`controller-container ${
-        musicList === undefined || musicList.length === 0
+        musicList === undefined || musicList.length === 0 || isHideController
           ? 'controller-container-hide'
           : null
       }`"
@@ -349,6 +349,9 @@ const musicCoverUrl = ref<string>();
 const lastMusic = ref<string>();
 const showDialog = ref(false);
 const musicSize = ref(0);
+const isHideController = ref(true);
+
+let controllerTimer: null | NodeJS.Timeout = null;
 
 //监听音乐列表的变化
 watch(
@@ -493,6 +496,10 @@ function initialize() {
     ipcRenderer.send("open-on-app");
     setTimeout(() => playListScroll(now.value), 500);
   }, 1000);
+
+  //鼠标进入[离]界面显示[隐藏]控制栏
+  document.documentElement.addEventListener("mouseenter", showController);
+  document.documentElement.addEventListener("mouseleave", hideController);
 }
 //初始化播放界面
 function playerCoverinitiate() {
@@ -841,6 +848,22 @@ function showFilePath(e: MouseEvent, filePath: string) {
 function showInFolder(filePath: string) {
   ipcRenderer.send("open-path", filePath);
 }
+//延迟隐藏控制栏
+function hideController() {
+  if (controllerTimer) clearTimeout(controllerTimer);
+  controllerTimer = setTimeout(() => {
+    isHideController.value = true;
+    controllerTimer = null;
+  }, 5000);
+}
+//显示控制栏
+function showController() {
+  if (controllerTimer) {
+    clearTimeout(controllerTimer);
+    controllerTimer = null;
+  }
+  isHideController.value = false;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -859,7 +882,7 @@ main {
     align-items: center;
     justify-content: center;
     width: 80%;
-    height: 85%;
+    height: 95%;
     .info-placeholder {
       color: var(--font_color);
       position: fixed;
@@ -1104,8 +1127,11 @@ main {
   padding: 1rem 0;
   box-sizing: border-box;
   transition: all 0.5s ease;
+  position: fixed;
+  bottom: 0.2rem;
   &-hide {
     transform: translate(0, 100%);
+    opacity: 0.0;
   }
 }
 .mask {
