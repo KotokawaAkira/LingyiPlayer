@@ -153,7 +153,7 @@ function setDefaultLyrics() {
   .lyric-container {
     margin: 0 auto;
     position: relative;
-    height: 95vh;
+    height: 90vh;
     width: 100%;
     overflow: scroll;
     user-select: none;
@@ -163,8 +163,8 @@ function setDefaultLyrics() {
       hsla(0, 0%, 100%, 0),
       hsla(0, 0%, 100%, 0.6) 15%,
       #fff 25%,
-      #fff 75%,
-      hsla(0, 0%, 100%, 0.6) 60%,
+      #fff 70%,
+      hsla(0, 0%, 100%, 0) 95%,
       hsla(0, 0%, 100%, 0)
     );
     -webkit-mask-image: linear-gradient(
@@ -172,8 +172,8 @@ function setDefaultLyrics() {
       hsla(0, 0%, 100%, 0),
       hsla(0, 0%, 100%, 0.6) 15%,
       #fff 25%,
-      #fff 75%,
-      hsla(0, 0%, 100%, 0.6) 70%,
+      #fff 70%,
+      hsla(0, 0%, 100%, 0) 95%,
       hsla(0, 0%, 100%, 0)
     );
     &::-webkit-scrollbar {
@@ -181,14 +181,14 @@ function setDefaultLyrics() {
     }
     &-long {
       mask-image: linear-gradient(
-      180deg,
-      hsla(0, 0%, 100%, 0),
-      hsla(0, 0%, 100%, 0.6) 15%,
-      #fff 25%,
-      #fff 75%,
-      hsla(0, 0%, 100%, 0.6) 85%,
-      hsla(0, 0%, 100%, 0)
-    );
+        180deg,
+        hsla(0, 0%, 100%, 0),
+        hsla(0, 0%, 100%, 0.6) 15%,
+        #fff 25%,
+        #fff 75%,
+        hsla(0, 0%, 100%, 0.6) 85%,
+        hsla(0, 0%, 100%, 0)
+      );
     }
     .no-lyrics {
       font-size: 2rem;
