@@ -164,7 +164,7 @@ function setDefaultLyrics() {
       hsla(0, 0%, 100%, 0.6) 15%,
       #fff 25%,
       #fff 70%,
-      hsla(0, 0%, 100%, 0) 95%,
+      hsla(0, 0%, 100%, 0) 90%,
       hsla(0, 0%, 100%, 0)
     );
     -webkit-mask-image: linear-gradient(
@@ -173,7 +173,7 @@ function setDefaultLyrics() {
       hsla(0, 0%, 100%, 0.6) 15%,
       #fff 25%,
       #fff 70%,
-      hsla(0, 0%, 100%, 0) 95%,
+      hsla(0, 0%, 100%, 0) 90%,
       hsla(0, 0%, 100%, 0)
     );
     &::-webkit-scrollbar {
