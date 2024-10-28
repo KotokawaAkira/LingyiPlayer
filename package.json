@@ -19,8 +19,8 @@
   "scripts": {
     "dev": "vite ",
     "build": "vue-tsc && vite build",
-    "electron": "electron --js-flags\"--expose-gc\" .",
-    "electron-build": "vue-tsc && electron-builder",
+    "electron": "electron .",
+    "electron-build": "vue-tsc && vite build && electron-builder",
     "preview": "vite preview"
   },
   "build": {

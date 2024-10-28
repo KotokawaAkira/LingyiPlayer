@@ -26,7 +26,6 @@ const createWindows = () => {
     webPreferences: {
       contextIsolation: false, //是否隔离上下文
       nodeIntegration: true, //进程使用node api
-      preload: path.join(__dirname, "./preload"),
     },
     icon: path.join(path.dirname(__dirname), "/src/assets/music-note.png"),
   });
@@ -38,7 +37,7 @@ const createWindows = () => {
   } else {
     //开发模式加载url
     window.loadURL("http://localhost:4396");
-    // window.webContents.openDevTools();
+    window.webContents.openDevTools();
   }
   //将window的webContents挂载到remoteMain
   remoteMain.enable(window.webContents);

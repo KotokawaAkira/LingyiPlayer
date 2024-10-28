@@ -12,7 +12,6 @@ export default defineConfig(({ mode }) => ({
     vue(),
     electron([
       { entry: "./electron/main.ts" },
-      { entry: "./electron/preload.ts" },
     ]),
     electronRenderer(),
     polyfillExports(),
