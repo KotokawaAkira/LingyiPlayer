@@ -853,6 +853,7 @@ function hideController() {
   if (controllerTimer) clearTimeout(controllerTimer);
   controllerTimer = setTimeout(() => {
     isHideController.value = true;
+    showSideWindow.value = false;
     controllerTimer = null;
   }, 5000);
 }
@@ -1131,7 +1132,7 @@ main {
   bottom: 0.2rem;
   &-hide {
     transform: translate(0, 100%);
-    opacity: 0.0;
+    opacity: 0;
   }
 }
 .mask {
